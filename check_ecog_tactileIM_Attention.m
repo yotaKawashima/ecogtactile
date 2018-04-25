@@ -14,7 +14,7 @@ close all;
 % % % 3 ... Right Stim (instruction to attend right hand)
 % % % 4 ... Right Rest (rest)
 
-sd = 1; %Thomas change this to 0
+localdef;
 useCh_1_60 = 1; %use channels 1 till 60
 
 if useCh_1_60
@@ -25,7 +25,7 @@ else
     endElct   = 104;
 end %useCh_1_60
     
-if(sd)
+if sd==1
     rootFile    = '/Users/sdan0007/Documents/MATLAB/';
     filePath    = [rootFile 'Ecog/'];
     preDataPath = [filePath 'Data/data_IM/'];  %prefix of data file
@@ -33,10 +33,11 @@ if(sd)
     % Thomas you probably added this path somewhere else
     LSCPPath    = [rootFile 'Add-Ons/Toolboxes/LSCPtools'];    
     addpath(genpath(LSCPPath));
-else
-    rootFile    = [rootFile '/Users/Thomas/'];
+elseif sd==0
+    
+    rootFile    = '/Users/Thomas/';
     filePath    = [rootFile 'EEGgit/LSCPtools/'];
-    preDataPath = [rootFile 'temp_data/ECogG_tapping/data_IM/'];
+    preDataPath = '/media/tLab_BackUp1/Monash/ECogG_somatosens/data_IM/';
     chronuxPath = [rootFile 'Work/local/toolbox/chronux_2_12/'];
 end %if sd
 

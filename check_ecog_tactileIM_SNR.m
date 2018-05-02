@@ -180,18 +180,50 @@ for nversion=1:5
     %%
     pow_bych=[];
     pow_bych2=[];
+    snr_bych=[];
+    powgamma_bych=[];
+    gammasnr_bych=[];
     kernel=[-.25 -.25 0 0 1 0 0 -.25 -.25];
     for nch=1:size(erp,1)
         for ntr=1:size(erp,2)
-            [faxis, pow_bych(nch,ntr,:)]=get_PowerSpec_new(squeeze(erp(nch,ntr,times>0 & times<10)),1/SR,sum(times>0 & times<10)/SR,0,0);
+            [faxis, pow_bych(nch,ntr,:)]=get_PowerSpec_new(squeeze(erp(nch,ntr,times>=0 & times<10)),1/SR,sum(times>=0 & times<10)/SR,0,0);
             snr_bych(nch,ntr,:)= conv(squeeze(log(pow_bych(nch,ntr,:))), kernel, 'same');
             
-            [faxis, powgamma_bych(nch,ntr,:)]=get_PowerSpec_new(squeeze(erpbp(nch,ntr,times>0 & times<10)),1/SR,sum(times>0 & times<10)/SR,0,0);
+            [faxis, powgamma_bych(nch,ntr,:)]=get_PowerSpec_new(squeeze(erpbp(nch,ntr,times>=0 & times<10)),1/SR,sum(times>=0 & times<10)/SR,0,0);
             gammasnr_bych(nch,ntr,:)= conv(squeeze(log(powgamma_bych(nch,ntr,:))), kernel, 'same');
             
         end
     end
     
+    erp2=permute(erp,[1 3 2]);
+    logSNR_param=[];
+    logSNR_param.method='fft';
+    logSNR_param.mindist=1;
+    [logSNR, faxis1, logpow]=get_logSNR(erp2(:,times>0 & times<10,:),SR,logSNR_param);
+    
+    logSNR_param=[];
+    logSNR_param.method='taper';
+    logSNR_param.mindist=1;
+    logSNR_param.numTaper=3;
+    [logSNR2, faxis2, logpow2]=get_logSNR(erp2(:,times>0 & times<10,:),SR,logSNR_param);
+    
+    
+    figure;
+    subplot(1,3,1); format_fig
+    plot(faxis1,squeeze(nanmean(logpow(55,:,:),3)));
+    title('log Power')
+    xlim([6 13])
+    subplot(1,3,2); format_fig
+    plot(faxis,squeeze(nanmean(snr_bych(55,:,:),2)));
+    title('log SNR - previous kernel')
+    xlim([6 13])
+       ylim([-2 5])
+ subplot(1,3,3); format_fig
+    plot(faxis1,squeeze(nanmean(logSNR(55,:,:),3)));
+    xlim([6 13])
+    ylim([-2 5])
+    title('log SNR - new kernel')
+
     %%
     figure;
     set(gcf,'Name',sprintf('%s - %s',version,'SNR'))

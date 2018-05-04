@@ -46,7 +46,7 @@ addpath(genpath(filePath));
 allversions={'1a','1arev','1b','2a','2b'};
 
 %% Looping on the different versions of the experiment
-for nversion=1 %:5
+for nversion=5 %:5
     %     S1channels= (startElct:endElct); %[11 21]; % channels given the strongest frequency-tag responses 1:60
     S1channels = [11 12 13 14 15 16 21 22 23 24 25 26 37 38 39 40 47 48 49 50 59 60];
     
@@ -158,8 +158,8 @@ for nversion=1 %:5
     for ntr=1:size(epochs,1)
         for nch=1:size(erp,1)
             erpbp2(nch,ntr,:)=bandpass(squeeze(erp(nch,ntr,:)), SR, 0.1, 15, 3);
-                      erpbp2(nch,ntr,:)=erpbp2(nch,ntr,:)-mean(erpbp2(nch,ntr,times>-0.2 & times<0));
-  erpbp(nch,ntr,:)=abs(hilbert(bandpass(squeeze(erp(nch,ntr,:)), SR, 60, 90, 4)));
+            erpbp2(nch,ntr,:)=erpbp2(nch,ntr,:)-mean(erpbp2(nch,ntr,times>-0.2 & times<0));
+            erpbp(nch,ntr,:)=abs(hilbert(bandpass(squeeze(erp(nch,ntr,:)), SR, 60, 90, 4)));
             erpbp(nch,ntr,:)=erpbp(nch,ntr,:)-mean(erpbp(nch,ntr,times<0));
             [faxis_gamma, pow]=get_PowerSpec(squeeze(erpbp(nch,ntr,times>0)),SR,0,0);
             pow_gamma(nch,ntr,:)=pow;
@@ -181,7 +181,7 @@ for nversion=1 %:5
     %         tf_data(nch,:,:)=(ersp);
     %     end
     
-     figure; 
+    figure;
     set(gcf,'Position',[360   278   880   420])
     format_fig; plot(times,squeeze(mean(erpbp2(10,:,:),2))'); xlim([-0.2 1]); line([0 0],ylim,'Color','r'); line([10 10],ylim,'Color','r');
     xlim([-0.8 10.8]); line([0 0],ylim,'Color','r'); line([10 10],ylim,'Color','r');
@@ -191,36 +191,36 @@ for nversion=1 %:5
     %     hold on; plot(times,fastsmooth(squeeze(mean(erpbp2(10,:,:),2))',500,3,1),'Color','r','LineWidth',4)
     [~,idxtime]=findclosest(times,0.1625);
     
-     figure;
-     subplot(1,2,1)
-    set(gcf,'Position',[360   278   880   420])
-    format_fig; hold on;
-    plot(times,squeeze(mean(erpbp2(1:54,1:6,:),2))','Color','k','LineWidth',3); 
-    xlim([-0.2 1]); line([0 0],ylim,'Color','r'); line([10 10],ylim,'Color','r');
-    xlabel('time (s)');
-    format_fig
-    ylabel('ERP amplitude')
-
+    figure;
     subplot(1,2,1)
     set(gcf,'Position',[360   278   880   420])
     format_fig; hold on;
-    plot(times,squeeze(mean(erpbp2(1:54,7:12,:),2))','Color','k','LineWidth',3); 
+    plot(times,squeeze(mean(erpbp2(1:54,1:6,:),2))','Color','k','LineWidth',3);
     xlim([-0.2 1]); line([0 0],ylim,'Color','r'); line([10 10],ylim,'Color','r');
     xlabel('time (s)');
     format_fig
     ylabel('ERP amplitude')
     
-       figure; 
+    subplot(1,2,1)
+    set(gcf,'Position',[360   278   880   420])
+    format_fig; hold on;
+    plot(times,squeeze(mean(erpbp2(1:54,7:12,:),2))','Color','k','LineWidth',3);
+    xlim([-0.2 1]); line([0 0],ylim,'Color','r'); line([10 10],ylim,'Color','r');
+    xlabel('time (s)');
+    format_fig
+    ylabel('ERP amplitude')
+    
+    figure;
     set(gcf,'Position',[360   278   880   420])
     format_fig; plot(times,squeeze(mean(erpbp2(11,:,:),2))','Color','k','LineWidth',3); hold on;
-    plot(times,squeeze(mean(erpbp2(11,1:6,:),2))','Color','g','LineWidth',3); 
-    plot(times,squeeze(mean(erpbp2(11,7:12,:),2))','Color',[1 1 1]*0.7,'LineWidth',3); 
+    plot(times,squeeze(mean(erpbp2(11,1:6,:),2))','Color','g','LineWidth',3);
+    plot(times,squeeze(mean(erpbp2(11,7:12,:),2))','Color',[1 1 1]*0.7,'LineWidth',3);
     xlim([-0.2 1]); line([0 0],ylim,'Color','r'); line([10 10],ylim,'Color','r');
     xlim([-0.2 0.8]); line([0 0],ylim,'Color','r'); line([10 10],ylim,'Color','r');
     xlabel('time (s)');
     format_fig
     ylabel('ERP amplitude')
-
+    
     
     
     figure;
@@ -244,26 +244,26 @@ for nversion=1 %:5
     set(gcf,'Position',[360   278   880   420])
     format_fig; plot(times,squeeze(mean(erpbp(10,:,:),2))'); xlim([-0.2 1]); line([0 0],ylim,'Color','r'); line([10 10],ylim,'Color','r');
     xlim([-0.8 10.8]); line([0 0],ylim,'Color','r'); line([10 10],ylim,'Color','r');
-    xlabel('time (s)'); 
+    xlabel('time (s)');
     format_fig
     ylabel('Gamma envelope')
     hold on; plot(times,fastsmooth(squeeze(mean(erpbp(10,:,:),2))',500,3,1),'Color','r','LineWidth',4)
-
-%%
-pow_bych=[];
-snr_bych=[];
-pow2_bych=[];
-snr2_bych=[];kernel=[-.25 -.25 0 0 1 0 0 -.25 -.25];
-for nch=1:size(erp,1)
-    for ntr=1:size(erp,2)
-        [faxis, pow_bych(nch,ntr,:)]=get_PowerSpec_new(squeeze(erp(nch,ntr,times>0 & times<10)),1/SR,sum(times>0 & times<10)/SR,0,0);
-        snr_bych(nch,ntr,:)= conv(squeeze(log(pow_bych(nch,ntr,:))), kernel, 'same');
+    
+    %%
+    pow_bych=[];
+    snr_bych=[];
+    pow2_bych=[];
+    snr2_bych=[];kernel=[-.25 -.25 0 0 1 0 0 -.25 -.25];
+    for nch=1:size(erp,1)
+        for ntr=1:size(erp,2)
+            [faxis, pow_bych(nch,ntr,:)]=get_PowerSpec_new(squeeze(erp(nch,ntr,times>0 & times<10)),1/SR,sum(times>0 & times<10)/SR,0,0);
+            snr_bych(nch,ntr,:)= conv(squeeze(log(pow_bych(nch,ntr,:))), kernel, 'same');
+            
+        end
+        [faxis, pow2_bych(nch,:)]=get_PowerSpec_new(squeeze(mean(erp(nch,:,times>0 & times<10),2)),1/SR,sum(times>0 & times<10)/SR,0,0);
+        snr2_bych(nch,:)= conv(squeeze(log(pow2_bych(nch,:))), kernel, 'same');
         
     end
-    [faxis, pow2_bych(nch,:)]=get_PowerSpec_new(squeeze(mean(erp(nch,:,times>0 & times<10),2)),1/SR,sum(times>0 & times<10)/SR,0,0);
-    snr2_bych(nch,:)= conv(squeeze(log(pow2_bych(nch,:))), kernel, 'same');
-    
-end
     
     %%
     figure;
@@ -288,8 +288,8 @@ end
             scatter(n,max(tp),'MarkerEdgeColor',colorCode(c),'Marker','d','SizeData',64);%,'LineStyle',lineCode{c})
         end
     end
-        format_fig;
-xlim([2 45])
+    format_fig;
+    xlim([2 45])
     ylim([-2 5])
     ylabel('SNR')
     xlabel('Frequency (Hz)')
@@ -298,7 +298,7 @@ xlim([2 45])
     plot(faxis,squeeze(mean(snr_bych(sizeH+1:sizeH+sizeV,1:6,:),2))','Color','g')
     plot(faxis,squeeze(mean(snr_bych(sizeH+1:sizeH+sizeV,7:12,:),2))','Color','k','LineStyle','--')
     c=0;
-   
+    
     for n=theseFreqs
         c=c+1;
         [~,idxfreqs(c)]=findclosest(faxis,n);
@@ -315,36 +315,36 @@ xlim([2 45])
     ylabel('SNR')
     xlabel('Frequency (Hz)')
     
-        theseFreqs=[LeftF0 RightF0 abs(LeftF0(2)-LeftF0(1)) abs(LeftF0(2)+LeftF0(1)) abs(RightF0(2)-RightF0(1)) abs(RightF0(2)+RightF0(1))];
-
+    theseFreqs=[LeftF0 RightF0 abs(LeftF0(2)-LeftF0(1)) abs(LeftF0(2)+LeftF0(1)) abs(RightF0(2)-RightF0(1)) abs(RightF0(2)+RightF0(1))];
+    
     subplot(2,2,3); format_fig; hold on;
     colorCode=[1 0 0; 1 0 0; 0 0 1; 0 0 1; 1 0 0; 1 0 0; 0 0 1 ; 0 0 1]; %'rrbbrb';
     for n=1:length(theseFreqs)
         [~,idx]=findclosest(faxis,theseFreqs(n));
         temp=squeeze(mean(snr_bych(1:sizeH,1:6,idx),2))';
         simple_PiratePlot(n-0.2,temp,.45/2,.5,'y',colorCode(n,:),'y',[],0,{'SizeData',36,'MarkerFaceColor',colorCode(n,:),'MarkerEdgeColor','k'});
-         temp2=squeeze(mean(snr_bych(1:sizeH,7:12,idx),2))';
-       simple_PiratePlot(n+0.2,temp2,.45/2,.5,'y',colorCode(n,:),'y',[],0,{'SizeData',36,'MarkerFaceColor','w','MarkerEdgeColor',colorCode(n,:)});
-       [h, pV_H(n)]=ttest(temp,temp2);
+        temp2=squeeze(mean(snr_bych(1:sizeH,7:12,idx),2))';
+        simple_PiratePlot(n+0.2,temp2,.45/2,.5,'y',colorCode(n,:),'y',[],0,{'SizeData',36,'MarkerFaceColor','w','MarkerEdgeColor',colorCode(n,:)});
+        [h, pV_H(n)]=ttest(temp,temp2);
     end
-        xlim([0.2 length(theseFreqs)+0.8])
-ylabel('SNR')
-set(gca,'Xtick',1:6,'XTickLabel',{'f contra 1','f contra 2','f ipsi 1','f ipsi 2','IM contra','IM ipsi'})
-ylim([-2 5])
+    xlim([0.2 length(theseFreqs)+0.8])
+    ylabel('SNR')
+    set(gca,'Xtick',1:6,'XTickLabel',{'f contra 1','f contra 2','f ipsi 1','f ipsi 2','IM contra','IM ipsi'})
+    ylim([-2 5])
     subplot(2,2,4); format_fig; hold on;
     for n=1:length(theseFreqs)
         [~,idx]=findclosest(faxis,theseFreqs(n));
         temp=squeeze(mean(snr_bych(sizeH+1:sizeH+sizeV,1:6,idx),2))';
         simple_PiratePlot(n-0.2,temp,.45/2,.5,'y',colorCode(n,:),'y',[],0,{'SizeData',36,'MarkerFaceColor',colorCode(n,:),'MarkerEdgeColor','k'});
-         temp2=squeeze(mean(snr_bych(sizeH+1:sizeH+sizeV,7:12,idx),2))';
-       simple_PiratePlot(n+0.2,temp2,.45/2,.5,'y',colorCode(n,:),'y',[],0,{'SizeData',36,'MarkerFaceColor','w','MarkerEdgeColor',colorCode(n,:)});
-       [h, pV_V(n)]=ttest(temp,temp2);
+        temp2=squeeze(mean(snr_bych(sizeH+1:sizeH+sizeV,7:12,idx),2))';
+        simple_PiratePlot(n+0.2,temp2,.45/2,.5,'y',colorCode(n,:),'y',[],0,{'SizeData',36,'MarkerFaceColor','w','MarkerEdgeColor',colorCode(n,:)});
+        [h, pV_V(n)]=ttest(temp,temp2);
     end
     xlim([0.2 length(theseFreqs)+0.8])
     ylabel('SNR')
-set(gca,'Xtick',1:6,'XTickLabel',{'f contra 1','f contra 2','f ipsi 1','f ipsi 2','IM contra','IM ipsi'})
-ylim([-2 5])
-
+    set(gca,'Xtick',1:6,'XTickLabel',{'f contra 1','f contra 2','f ipsi 1','f ipsi 2','IM contra','IM ipsi'})
+    ylim([-2 5])
+    
     %%
     % extract fundamentals
     fondFreq=[LeftF0 RightF0];
@@ -355,6 +355,16 @@ ylim([-2 5])
         pow_tag(:,:,nfreq)=(snr_bych(:,:,findfreq));%-1/2*(log(pow_bych(:,:,findfreq-1)) + log(pow_bych(:,:,findfreq+1)));
         pow_tag2(:,nfreq)=(mean(snr_bych(:,:,findfreq),2));%-1/2*(log(mean(pow_bych(:,:,findfreq-1),2)) + log(mean(pow_bych(:,:,findfreq+1),2)));
     end
+    
+    fondFreq=[2*LeftF0 2*RightF0];
+    pow_2tag=[];
+    pow_2tag2=[];
+    for nfreq=1:length(fondFreq)
+        [~,findfreq]=findclosest(faxis,fondFreq(nfreq));
+        pow_2tag(:,:,nfreq)=(snr_bych(:,:,findfreq));%-1/2*(log(pow_bych(:,:,findfreq-1)) + log(pow_bych(:,:,findfreq+1)));
+        pow_2tag2(:,nfreq)=(mean(snr_bych(:,:,findfreq),2));%-1/2*(log(mean(pow_bych(:,:,findfreq-1),2)) + log(mean(pow_bych(:,:,findfreq+1),2)));
+    end
+    
     % extract IM
     fondFreq=[abs(LeftF0(2)-LeftF0(1)) abs(RightF0(2)-RightF0(1))];
     pow_IM=[];
@@ -375,113 +385,182 @@ ylim([-2 5])
     %posY=[ones(1,elecC) 2*ones(1,elecC) 3*ones(1,elecC) 4*ones(1,elecC) 5*ones(1,elecC) 6*ones(1,elecC)];
     
     figure;
-    set(gcf,'position',[-442        1399        1075         458],'Name',sprintf('%s - %s',version,'Horizontal Bi-Polar ATTENDED'))
-    subplot(2,2,1)
-    [h, pV, ~, stats]=ttest(squeeze(pow_tag(1:sizeH,1:6,1:2)),0,'dim',2);
-    imagesc(1:elecC,1:elecR+1,reshape(mean(stats.tstat,3),elecC,elecR+1)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
-    title('Freq Tag Contra')
-    xlim([0.5 elecC + 0.5])
-    ylim([0.5 elecR + 1.5])
-    
-    % end
-    
-    subplot(2,2,3)
-    [h, pV, ~, stats]=ttest(squeeze(pow_IM(1:sizeH,1:6,1)),0,'dim',2);
-    imagesc(1:elecC,1:elecR+1,reshape(mean(stats.tstat,3),elecC,elecR+1)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
-    title('IM Tag Contra')
-    xlim([0.5 elecC + 0.5])
-    ylim([0.5 elecR + 1.5])
-    
-    subplot(2,2,2)
-    [h, pV, ~, stats]=ttest(squeeze(pow_tag(1:sizeH,1:6,3:4)),0,'dim',2);
-    imagesc(1:elecC,1:elecR+1,reshape(mean(stats.tstat,3),elecC,elecR+1)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
-    title('Freq Tag Ipsi')
-    xlim([0.5 elecC + 0.5])
-    ylim([0.5 elecR + 1.5])
-    
-    subplot(2,2,4)
-    [h, pV, ~, stats]=ttest(squeeze(pow_IM(1:sizeH,1:6,2)),0,'dim',2);
-    imagesc(1:elecC,1:elecR+1,reshape(mean(stats.tstat,3),elecC,elecR+1)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
-    title('IM Tag Ipsi')
-    xlim([0.5 elecC + 0.5])
-    ylim([0.5 elecR + 1.5])
+    set(gcf,'position',[-442   867   362   458],'Name','Tag Contra Attended')
+    [h, pV, ~, stats]=ttest(squeeze(pow_tag(:,1:6,1:2)),0,'dim',2);
+    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+    title('Tag Contra Attended')
+    format_fig;
+    colormap(cmap)
     
     figure;
-    set(gcf,'position',[-442        1399        1075         458],'Name',sprintf('%s - %s',version,'Vertical Bi-Polar ATTENDED'))
-    subplot(2,2,1)
-    [h, pV, ~, stats]=ttest(squeeze(pow_tag(sizeH+1:sizeH+sizeV,1:6,1:2)),0,'dim',2);
-    imagesc(1:elecC+1,1:elecR,reshape(mean(stats.tstat,3),elecC+1,elecR)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
-    title('Freq Tag Contra')
-    xlim([0.5 elecC + 1.5])
-    ylim([0.5 elecR + 0.5])
+    set(gcf,'position',[-442   867   362   458],'Name','Tag Contra Unattended')
+    [h, pV, ~, stats]=ttest(squeeze(pow_tag(:,7:12,1:2)),0,'dim',2);
+    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+    title('Tag Contra Unattended')
+    format_fig;
+    colormap(cmap)
     
-    % end
+    figure;
+    set(gcf,'position',[-442   867   362   458],'Name','Tag Ipsi Unattended')
+    [h, pV, ~, stats]=ttest(squeeze(pow_tag(:,1:6,3:4)),0,'dim',2);
+    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+    title('Tag Ipsi Unattended')
+    format_fig;
+    colormap(cmap)
     
-    subplot(2,2,2)
-    [h, pV, ~, stats]=ttest(squeeze(pow_IM(sizeH+1:sizeH+sizeV,1:6,1)),0,'dim',2);
-    imagesc(1:elecC+1,1:elecR,reshape(mean(stats.tstat,3),elecC+1,elecR)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
-    title('IM Tag Contra')
-    xlim([0.5 elecC + 1.5])
-    ylim([0.5 elecR + 0.5])
+    figure;
+    set(gcf,'position',[-442   867   362   458],'Name','Tag Ipsi Attended')
+    [h, pV, ~, stats]=ttest(squeeze(pow_tag(:,7:12,3:4)),0,'dim',2);
+    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+    title('Tag Ipsi Attended')
+    format_fig;
+    colormap(cmap)
     
-    subplot(2,2,3)
-    [h, pV, ~, stats]=ttest(squeeze(pow_tag(sizeH+1:sizeH+sizeV,1:6,3:4)),0,'dim',2);
-    imagesc(1:elecC+1,1:elecR,reshape(mean(stats.tstat,3),elecC+1,elecR)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
-    title('Freq Tag Ipsi')
-    xlim([0.5 elecC + 1.5])
-    ylim([0.5 elecR + 0.5])
+    figure;
+    set(gcf,'position',[-442   867   362   458],'Name','Tag Contra Attended')
+    [h, pV, ~, stats]=ttest(squeeze(pow_2tag(:,1:6,1:2)),0,'dim',2);
+    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+    title('Tag 2f0 Contra Attended')
+    format_fig;
+    colormap(cmap)
     
-    subplot(2,2,4)
-    [h, pV, ~, stats]=ttest(squeeze(pow_IM(sizeH+1:sizeH+sizeV,1:6,2)),0,'dim',2);
-    imagesc(1:elecC+1,1:elecR,reshape(mean(stats.tstat,3),elecC+1,elecR)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
-    title('IM Tag Ipsi')
-    xlim([0.5 elecC + 1.5])
-    ylim([0.5 elecR + 0.5])
+    figure;
+    set(gcf,'position',[-442   867   362   458],'Name','Tag Contra Unattended')
+    [h, pV, ~, stats]=ttest(squeeze(pow_2tag(:,7:12,1:2)),0,'dim',2);
+    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+    title('Tag 2f0 Contra Unattended')
+    format_fig;
+    colormap(cmap)
     
+    figure;
+    set(gcf,'position',[-442   867   362   458],'Name','Tag Ipsi Unattended')
+    [h, pV, ~, stats]=ttest(squeeze(pow_2tag(:,1:6,3:4)),0,'dim',2);
+    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+    title('Tag 2f0 Ipsi Unattended')
+    format_fig;
+    colormap(cmap)
+    
+    figure;
+    set(gcf,'position',[-442   867   362   458],'Name','Tag Ipsi Attended')
+    [h, pV, ~, stats]=ttest(squeeze(pow_2tag(:,7:12,3:4)),0,'dim',2);
+    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+    title('Tag 2f0 Ipsi Attended')
+    format_fig;
+    colormap(cmap)
     
     
     figure;
-    set(gcf,'position',[-442        1399        1075         458],'Name',sprintf('%s - %s',version,'Horizontal Bi-Polar UNATTENDED'))
-    subplot(2,2,1)
-    [h, pV, ~, stats]=ttest(squeeze(pow_tag(1:sizeH,7:12,1:2)),0,'dim',2);
-    imagesc(1:elecC,1:elecR+1,reshape(mean(stats.tstat,3),elecC,elecR+1)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
-    title('Freq Tag Contra')
-    xlim([0.5 elecC + 0.5])
-    ylim([0.5 elecR + 1.5])
+    set(gcf,'position',[-442   867   362   458],'Name','Tag Contra Attended')
+    [h, pV, ~, stats]=ttest(squeeze(pow_IM(:,1:6,1)),0,'dim',2);
+    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+    title('Tag IM Contra Attended')
+    format_fig;
+    colormap(cmap)
     
-    % end
+    figure;
+    set(gcf,'position',[-442   867   362   458],'Name','Tag Contra Unattended')
+    [h, pV, ~, stats]=ttest(squeeze(pow_IM(:,7:12,1)),0,'dim',2);
+    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+    title('Tag IM Contra Unattended')
+    format_fig;
+    colormap(cmap)
     
-    subplot(2,2,3)
-    [h, pV, ~, stats]=ttest(squeeze(pow_IM(1:sizeH,7:12,1)),0,'dim',2);
-    imagesc(1:elecC,1:elecR+1,reshape(mean(stats.tstat,3),elecC,elecR+1)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
-    title('IM Tag Contra')
-    xlim([0.5 elecC + 0.5])
-    ylim([0.5 elecR + 1.5])
+    figure;
+    set(gcf,'position',[-442   867   362   458],'Name','Tag Ipsi Unattended')
+    [h, pV, ~, stats]=ttest(squeeze(pow_IM(:,1:6,2)),0,'dim',2);
+    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+    title('Tag IM Ipsi Unattended')
+    format_fig;
+    colormap(cmap)
     
-    subplot(2,2,2)
-    [h, pV, ~, stats]=ttest(squeeze(pow_tag(1:sizeH,7:12,3:4)),0,'dim',2);
-    imagesc(1:elecC,1:elecR+1,reshape(mean(stats.tstat,3),elecC,elecR+1)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
-    title('Freq Tag Ipsi')
-    xlim([0.5 elecC + 0.5])
-    ylim([0.5 elecR + 1.5])
+    figure;
+    set(gcf,'position',[-442   867   362   458],'Name','Tag Ipsi Attended')
+    [h, pV, ~, stats]=ttest(squeeze(pow_IM(:,7:12,2)),0,'dim',2);
+    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+    title('Tag IM Ipsi Attended')
+    format_fig;
+    colormap(cmap)
     
-    subplot(2,2,4)
-    [h, pV, ~, stats]=ttest(squeeze(pow_IM(1:sizeH,7:12,2)),0,'dim',2);
-    imagesc(1:elecC,1:elecR+1,reshape(mean(stats.tstat,3),elecC,elecR+1)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
-    title('IM Tag Ipsi')
-    xlim([0.5 elecC + 0.5])
-    ylim([0.5 elecR + 1.5])
+    
+    if strcmp(version(1),'2')
+        % extract IM
+        fondFreq=[8 11 17 23];
+        pow_tag2=[];
+        for nfreq=1:length(fondFreq)
+            [~,findfreq]=findclosest(faxis,fondFreq(nfreq));
+            pow_tag2(:,:,nfreq)=(snr_bych(:,:,findfreq));%-1/2*(log(pow_bych(:,:,findfreq-1)) + log(pow_bych(:,:,findfreq+1)));
+        end
+        
+        fondFreq=[abs(8-11) abs(17-23)];
+        pow_IM3=[];
+        for nfreq=1:length(fondFreq)
+            [~,findfreq]=findclosest(faxis,fondFreq(nfreq));
+            pow_IM3(:,:,nfreq)=(snr_bych(:,:,findfreq));%-1/2*(log(pow_bych(:,:,findfreq-1)) + log(pow_bych(:,:,findfreq+1)));
+        end
+        figure;
+        set(gcf,'position',[-442   867   362   458],'Name',sprintf('%s - %s',version,'Tag Hands Attended'))
+        [h, pV, ~, stats]=ttest(squeeze(pow_tag2(:,1:6,1:2)),0,'dim',2);
+        [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+        title('Tag Hands Attended')
+        format_fig;
+        colormap(cmap)
+        
+        figure;
+        set(gcf,'position',[-79   867   362   458],'Name',sprintf('%s - %s',version,'Tag Hands Unattended'))
+        [h, pV, ~, stats]=ttest(squeeze(pow_tag2(:,7:12,1:2)),0,'dim',2);
+        [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+        title('Tag Hands Unattended')
+        format_fig;
+        colormap(cmap)
+        
+        figure;
+        set(gcf,'position',[-442   867   362   458],'Name',sprintf('%s - %s',version,'Tag Feet Unattended'))
+        [h, pV, ~, stats]=ttest(squeeze(pow_tag2(:,1:6,3:4)),0,'dim',2);
+        [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+        title('Tag Feet Unattended')
+        format_fig;
+        colormap(cmap)
+        
+        figure;
+        set(gcf,'position',[-79   867   362   458],'Name',sprintf('%s - %s',version,'Tag Feet Attended'))
+        [h, pV, ~, stats]=ttest(squeeze(pow_tag2(:,7:12,3:4)),0,'dim',2);
+        [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+        title('Tag Feet Attended')
+        format_fig;
+        colormap(cmap)
+        
+        figure;
+        set(gcf,'position',[-442   867   362   458],'Name',sprintf('%s - %s',version,'IM Hands Attended'))
+        [h, pV, ~, stats]=ttest(squeeze(pow_IM3(:,1:6,1)),0,'dim',2);
+        [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+        title('IM Hands Attended')
+        format_fig;
+        colormap(cmap)
+        
+        figure;
+        set(gcf,'position',[-79   867   362   458],'Name',sprintf('%s - %s',version,'IM Hands Unattended'))
+        [h, pV, ~, stats]=ttest(squeeze(pow_IM3(:,7:12,1)),0,'dim',2);
+        [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+        title('IM Hands Unattended')
+        format_fig;
+        colormap(cmap)
+        
+        figure;
+        set(gcf,'position',[-442   867   362   458],'Name',sprintf('%s - %s',version,'IM Feet Unattended'))
+        [h, pV, ~, stats]=ttest(squeeze(pow_IM3(:,1:6,2)),0,'dim',2);
+        [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+        title('IM Feet Unattended')
+        format_fig;
+        colormap(cmap)
+        
+        figure;
+        set(gcf,'position',[-79   867   362   458],'Name',sprintf('%s - %s',version,'IM Feet Attended'))
+        [h, pV, ~, stats]=ttest(squeeze(pow_IM3(:,7:12,2)),0,'dim',2);
+        [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+        title('IM Feet Attended')
+        format_fig;
+        colormap(cmap)
+        
+    end
     
 end

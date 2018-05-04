@@ -14,7 +14,7 @@
 % % % 3 ... Right Stim (instruction to attend right hand)
 % % % 4 ... Right Rest (rest)
 
-sd = 1; %Thomas change this to 0
+localdef;
 useCh_1_60 = 1; %use channels 1 till 60
 saveData   = 1; % save the data results 
 
@@ -35,9 +35,9 @@ if(sd)
     LSCPPath    = [rootFile 'Add-Ons/Toolboxes/LSCPtools'];    
     addpath(genpath(LSCPPath));
 else
-    rootFile    = [rootFile '/Users/Thomas/'];
+    rootFile    = ['/Users/Thomas/'];
     filePath    = [rootFile 'EEGgit/LSCPtools/'];
-    preDataPath = [rootFile 'temp_data/ECogG_tapping/data_IM/'];
+    preDataPath = ['/media/tLab_BackUp1/Monash/ECogG_somatosens/data_IM/'];
     chronuxPath = [rootFile 'Work/local/toolbox/chronux_2_12/'];
 end %if sd
 
@@ -119,6 +119,7 @@ for nversion=1:numOfCondition
 end %for  nversion=1:5
 
 if(saveData)
+    cd(preDataPath)
     save('ecogGLobal.mat','numOfCondition', 'useCh_1_60', 'preDataPath', 'meanSec', 'chronuxPath', 'S1channels', 'LeftF0_all', 'RightF0_all' );
     save ('ecogPrePros.mat', 'allEpochs', 'allversions', 'rawData');
 end %(if saveData)

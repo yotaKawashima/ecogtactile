@@ -46,7 +46,7 @@ addpath(genpath(filePath));
 allversions={'1a','1arev','1b','2a','2b'};
 
 %% Looping on the different versions of the experiment
-for nversion=1:5
+for nversion=4:5
     %     S1channels= (startElct:endElct); %[11 21]; % channels given the strongest frequency-tag responses 1:60
     S1channels = [11 12 13 14 15 16 21 22 23 24 25 26 37 38 39 40 47 48 49 50 59 60];
     
@@ -69,13 +69,13 @@ for nversion=1:5
     elseif strcmp(version,'2a') % version 1a: sensors on hands and feet kept close
         data_path=[preDataPath '2a/'];
         file_name='Vibrotactile_FeetClose_17_03_2018_13_11_09_0000.mat';
-        LeftF0=[8 17];
+   LeftF0=[8 17];
         RightF0=[11 23];
         
     elseif strcmp(version,'2b') % version 1a: sensors on hands and feet kept apart
         data_path=[preDataPath '2b/'];
         file_name='Vibrotactile_FeetApart_17_03_2018_13_22_10_0000.mat';
-        LeftF0=[8 17];
+   LeftF0=[8 17];
         RightF0=[11 23];
     end
     fprintf('... loading %s\n',file_name) %reverse the order sd
@@ -162,20 +162,20 @@ for nversion=1:5
         end
     end
     
-%     % % load eeglab
-%     addpath(genpath('/Users/Thomas/Work/local/toolbox/eeglab13_2_2b/'));
-%     fprintf('... ... tf %3.0f/%3.0f\n',0,size(erp,1))
-%     tf_data=[];
-%     for nch=1:size(erp,1)
-%         fprintf('\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b... ... tf %3.0f/%3.0f\n',nch,size(erp,1))
-%         tempdata=squeeze(erp(nch,:,:))';
-%         
-%         [ersp,~,powbase,times2,freqs,~,~,datatf] =  newtimef(tempdata,size(tempdata,1),...
-%             [-1 meanSec]*1000,SR,0,'baseline', [-1000 0] ,'maxfreq', 100, 'plotersp', 'off', 'plotitc', 'off', 'padratio', 1, ...
-%             'verbose','off'); %%,'timesout',-1500:40:3000);
-%         
-%         tf_data(nch,:,:)=(ersp);
-%     end
+    %     % % load eeglab
+    %     addpath(genpath('/Users/Thomas/Work/local/toolbox/eeglab13_2_2b/'));
+    %     fprintf('... ... tf %3.0f/%3.0f\n',0,size(erp,1))
+    %     tf_data=[];
+    %     for nch=1:size(erp,1)
+    %         fprintf('\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b... ... tf %3.0f/%3.0f\n',nch,size(erp,1))
+    %         tempdata=squeeze(erp(nch,:,:))';
+    %
+    %         [ersp,~,powbase,times2,freqs,~,~,datatf] =  newtimef(tempdata,size(tempdata,1),...
+    %             [-1 meanSec]*1000,SR,0,'baseline', [-1000 0] ,'maxfreq', 100, 'plotersp', 'off', 'plotitc', 'off', 'padratio', 1, ...
+    %             'verbose','off'); %%,'timesout',-1500:40:3000);
+    %
+    %         tf_data(nch,:,:)=(ersp);
+    %     end
     
     %%
     pow_bych=[];
@@ -217,13 +217,13 @@ for nversion=1:5
     plot(faxis,squeeze(nanmean(snr_bych(55,:,:),2)));
     title('log SNR - previous kernel')
     xlim([6 13])
-       ylim([-2 5])
- subplot(1,3,3); format_fig
+    ylim([-2 5])
+    subplot(1,3,3); format_fig
     plot(faxis1,squeeze(nanmean(logSNR(55,:,:),3)));
     xlim([6 13])
     ylim([-2 5])
     title('log SNR - new kernel')
-
+    
     %%
     figure;
     set(gcf,'Name',sprintf('%s - %s',version,'SNR'))
@@ -246,8 +246,8 @@ for nversion=1:5
             scatter(n,max(tp),'MarkerEdgeColor',colorCode(c),'Marker','d','SizeData',64);%,'LineStyle',lineCode{c})
         end
     end
-        format_fig;
-xlim([2 45])
+    format_fig;
+    xlim([2 45])
     ylim([-2 5])
     ylabel('SNR')
     xlabel('Frequency (Hz)')
@@ -274,11 +274,6 @@ xlim([2 45])
     
     
     %%
-    temp=squeeze(mean(pow_tag(:,:,1),2));
-    temp=[zeros(1,sum(reref_mat(:,3)==0)) 1:sum(reref_mat(:,3)==1)]';
-    [p, FV] = draw_biprref(temp, reref_mat, [10 6], [1 60]);
-    
-    %%
     % extract fundamentals
     fondFreq=[LeftF0 RightF0];
     pow_tag=[];
@@ -298,85 +293,65 @@ xlim([2 45])
         pow_IM2(:,nfreq)=(mean(snr_bych(:,:,findfreq),2));%-1/2*(log(mean(pow_bych(:,:,findfreq-1),2)) + log(mean(pow_bych(:,:,findfreq+1),2)));
     end
     
-    % plot grids
-    %     posX=repmat(1:elecC,1,6);
-    posX=repmat(1:elecC,1,elecR+1);
-    posY=[];
-    for ind =1:elecR +1
-        posY = [posY ind * ones(1,elecC)];
-    end %for
-    %posY=[ones(1,elecC) 2*ones(1,elecC) 3*ones(1,elecC) 4*ones(1,elecC) 5*ones(1,elecC) 6*ones(1,elecC)];
+    
     
     figure;
-    set(gcf,'position',[-442        1399        1075         458],'Name',sprintf('%s - %s',version,'Horizontal Bi-Polar'))
-    subplot(2,2,1)
-    [h, pV, ~, stats]=ttest(squeeze(pow_tag(1:sizeH,:,1:2)),0,'dim',2);
-    imagesc(1:elecC,1:elecR+1,reshape(mean(stats.tstat,3),elecC,elecR+1)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
+    set(gcf,'position',[-442        1399         362         458],'Name',sprintf('%s - %s',version,'Power Contra'))
+    [h, pV, ~, stats]=ttest(squeeze(pow_tag(:,:,1:2)),0,'dim',2);
+    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
     title('Freq Tag Contra')
-    xlim([0.5 elecC + 0.5])
-    ylim([0.5 elecR + 1.5])
-    
-    % end
-    
-    subplot(2,2,3)
-    [h, pV, ~, stats]=ttest(squeeze(pow_IM(1:sizeH,:,1)),0,'dim',2);
-    imagesc(1:elecC,1:elecR+1,reshape(mean(stats.tstat,3),elecC,elecR+1)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
-    title('IM Tag Contra')
-    xlim([0.5 elecC + 0.5])
-    ylim([0.5 elecR + 1.5])
-    
-    subplot(2,2,2)
-    [h, pV, ~, stats]=ttest(squeeze(pow_tag(1:sizeH,:,3:4)),0,'dim',2);
-    imagesc(1:elecC,1:elecR+1,reshape(mean(stats.tstat,3),elecC,elecR+1)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
-    title('Freq Tag Ipsi')
-    xlim([0.5 elecC + 0.5])
-    ylim([0.5 elecR + 1.5])
-    
-    subplot(2,2,4)
-    [h, pV, ~, stats]=ttest(squeeze(pow_IM(1:sizeH,:,2)),0,'dim',2);
-    imagesc(1:elecC,1:elecR+1,reshape(mean(stats.tstat,3),elecC,elecR+1)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
-    title('IM Tag Ipsi')
-    xlim([0.5 elecC + 0.5])
-    ylim([0.5 elecR + 1.5])
+    format_fig;
+    colormap(cmap)
     
     figure;
-    set(gcf,'position',[-442        1399        1075         458],'Name',sprintf('%s - %s',version,'Vertical Bi-Polar'))
-    subplot(2,2,1)
-    [h, pV, ~, stats]=ttest(squeeze(pow_tag(sizeH+1:sizeH+sizeV,:,1:2)),0,'dim',2);
-    imagesc(1:elecC+1,1:elecR,reshape(mean(stats.tstat,3),elecC+1,elecR)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
-    title('Freq Tag Contra')
-    xlim([0.5 elecC + 1.5])
-    ylim([0.5 elecR + 0.5])
-    
-    % end
-    
-    subplot(2,2,2)
-    [h, pV, ~, stats]=ttest(squeeze(pow_IM(sizeH+1:sizeH+sizeV,:,1)),0,'dim',2);
-    imagesc(1:elecC+1,1:elecR,reshape(mean(stats.tstat,3),elecC+1,elecR)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
+    set(gcf,'position',[-442   867   362   458],'Name',sprintf('%s - %s',version,'Power Contra'))
+    [h, pV, ~, stats]=ttest(squeeze(pow_IM(:,:,1)),0,'dim',2);
+    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
     title('IM Tag Contra')
-    xlim([0.5 elecC + 1.5])
-    ylim([0.5 elecR + 0.5])
+    format_fig;
+    colormap(cmap)
     
-    subplot(2,2,3)
-    [h, pV, ~, stats]=ttest(squeeze(pow_tag(sizeH+1:sizeH+sizeV,:,3:4)),0,'dim',2);
-    imagesc(1:elecC+1,1:elecR,reshape(mean(stats.tstat,3),elecC+1,elecR)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
+    figure;
+    set(gcf,'position',[ -79        1399         362         458],'Name',sprintf('%s - %s',version,'Power Contra'))
+    [h, pV, ~, stats]=ttest(squeeze(pow_tag(:,:,3:4)),0,'dim',2);
+    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
     title('Freq Tag Ipsi')
-    xlim([0.5 elecC + 1.5])
-    ylim([0.5 elecR + 0.5])
+    format_fig;
+    colormap(cmap)
     
-    subplot(2,2,4)
-    [h, pV, ~, stats]=ttest(squeeze(pow_IM(sizeH+1:sizeH+sizeV,:,2)),0,'dim',2);
-    imagesc(1:elecC+1,1:elecR,reshape(mean(stats.tstat,3),elecC+1,elecR)'); set(gca,'ydir','normal');
-    caxis([-8 8]); colormap(cmap); colorbar;
+    figure;
+    set(gcf,'position',[-79   867   362   458],'Name',sprintf('%s - %s',version,'Power Contra'))
+    [h, pV, ~, stats]=ttest(squeeze(pow_IM(:,:,2)),0,'dim',2);
+    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
     title('IM Tag Ipsi')
-    xlim([0.5 elecC + 1.5])
-    ylim([0.5 elecR + 0.5])
+    format_fig;
+    colormap(cmap)
     
+    if strcmp(version(1),'2')
+        % extract IM
+        fondFreq=[abs(8-11) abs(17-23)];
+        pow_IM3=[];
+        pow_IM4=[];
+        for nfreq=1:length(fondFreq)
+            [~,findfreq]=findclosest(faxis,fondFreq(nfreq));
+            pow_IM3(:,:,nfreq)=(snr_bych(:,:,findfreq));%-1/2*(log(pow_bych(:,:,findfreq-1)) + log(pow_bych(:,:,findfreq+1)));
+            pow_IM4(:,nfreq)=(mean(snr_bych(:,:,findfreq),2));%-1/2*(log(mean(pow_bych(:,:,findfreq-1),2)) + log(mean(pow_bych(:,:,findfreq+1),2)));
+        end
+        figure;
+        set(gcf,'position',[-442   867   362   458],'Name',sprintf('%s - %s',version,'Power Contra'))
+        [h, pV, ~, stats]=ttest(squeeze(pow_IM3(:,:,1)),0,'dim',2);
+        [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+        title('IM Tag Hands')
+        format_fig;
+        colormap(cmap)
+        
+        figure;
+        set(gcf,'position',[-79   867   362   458],'Name',sprintf('%s - %s',version,'Power Contra'))
+        [h, pV, ~, stats]=ttest(squeeze(pow_IM3(:,:,2)),0,'dim',2);
+        [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+        title('IM Tag Feet')
+        format_fig;
+        colormap(cmap)
+        
+    end
 end

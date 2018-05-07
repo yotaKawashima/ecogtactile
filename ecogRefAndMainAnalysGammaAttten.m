@@ -95,7 +95,7 @@ for nversion=1:numOfCondition
     params.Fs = 1200; %Fs;
     %     movingwin = [0.1 0.05];
     movingwin = [0.5 0.1];
-    params.trialave = 0; % Avarage between electrodes
+    params.trialave = 0; % DO NOT Avarage between electrodes
     params.err = [2 p]; % Jackknife error bars;  [1 p] - Theoretical error bars taken from http://chronux.org/chronuxFiles/Documentation/chronux/spectral_analysis/continuous/mtspecgramc.html
     
     
@@ -109,30 +109,71 @@ for nversion=1:numOfCondition
     end
     t_1=t_1-1;
     S_1rel=S_1./repmat(mean(S_1(t_1<0,:,:,:),1),[length(t_1) 1 1 1]); S_1rel=log(S_1rel);
-figure('Name',[allversions{nversion} '  All Elct']), plot_matrix(mean(mean(S_1rel(:,:,:,:),3),4), t_1, f_1,1);caxis([-1 1]); 
+    figure('Name',[allversions{nversion} '  All Elct']), plot_matrix(mean(mean(S_1rel(:,:,:,:),3),4), t_1, f_1,1);caxis([-1 1]); 
 
-    figure('Name',[allversions{nversion} '  All Elct']), plot_matrix(mean(S_1,3), t_1, (mean(f_1,2))',1, mean(Serr_1,4));
+%     figure('Name',[allversions{nversion} '  All Elct']), plot_matrix(mean(S_1,3), t_1, (mean(f_1,2))',1, mean(Serr_1,4));
 
     
-    S_1 = [];
+    S_1 = nan([126 116 sizeH 6]);
     f_1 = [];
     Serr_1 = [];
     
     for ind = 1:6
-        [S_1(:,:,ind),t_1,f_1(:,ind), Serr_1(:,:,:,ind)]=mtspecgramc((squeeze(att_1_H(:,ind,:)))',movingwin,params);
+        [S_1(:,:,:,ind),t_1,f_1, Serr_1(:,:,:,:,ind)]=mtspecgramc((squeeze(att_1_H(:,ind,:)))',movingwin,params);
     end %for 1:6
+    t_1=t_1-1;
+    S_1=S_1./repmat(mean(S_1(t_1<0,:,:,:),1),[length(t_1) 1 1 1]); S_1Log=log(S_1);
+    figure('Name',[allversions{nversion} '  Horizontal att_1']),plot_matrix(mean(mean(S_1Log(:,:,:,:),3),4), t_1, f_1,1); caxis([-1 1]);
     
-    S_3 = [];
+    
+    S_3 = nan([126 116 sizeH 6]);
     f_3 = [];
     Serr_3 = [];
+    t_3 = [];
     
     for ind = 1:6
-        [S_3(:,:,ind),t_3,f_3(:,ind), Serr_3(:,:,:,ind)]=mtspecgramc((squeeze(att_3_H(:,ind,:)))',movingwin,params);
+        [S_3(:,:,:,ind),t_3,f_3, Serr_3(:,:,:,:,ind)]=mtspecgramc((squeeze(att_3_H(:,ind,:)))',movingwin,params);
     end %for 1:6
+    t_3=t_3-1;
+    S_3=S_3./repmat(mean(S_3(t_3<0,:,:,:),1),[length(t_3) 1 1 1]); S_3Log=log(S_3);
+    figure('Name',[allversions{nversion} '  Horizontal att_3']),plot_matrix(mean(mean(S_3Log(:,:,:,:),3),4), t_3, f_3,1); caxis([-1 1]);
+    
+    diffH =log(abs(S_1 - S_3));
+    figure('Name',[allversions{nversion} '  Horizontal Att dif']),plot_matrix(mean(mean(diffH(:,:,:,:),3),4), t_3, f_3,1); caxis([-1 1]);
+    
+    %---------------------Vertical -------------------
+    S_1 = nan([126 116 sizeV 6]);
+    f_1 = [];
+    t_1 = [];
+    
+    for ind = 1:6
+        [S_1(:,:,:,ind),t_1,f_1]=mtspecgramc((squeeze(att_1_V(:,ind,:)))',movingwin,params);
+    end %for 1:6
+    t_1=t_1-1;
+    S_1=S_1./repmat(mean(S_1(t_1<0,:,:,:),1),[length(t_1) 1 1 1]); S_1Log=log(S_1);
+    figure('Name',[allversions{nversion} '  Vertical att_1']),plot_matrix(mean(mean(S_1Log(:,:,:,:),3),4), t_1, f_1,1); caxis([-1 1]);
     
     
-    figure('Name',[allversions{nversion} '  Horizontal att_1']),plot_matrix(mean(S_1,3), t_1, (mean(f_1,2))',1, mean(Serr_1,4));
-    figure('Name',[allversions{nversion} '  Horizontal att_3']),plot_matrix(mean(S_3,3), t_3, (mean(f_3,2))',1, mean(Serr_3,4));
+    S_3 = nan([126 116 sizeV 6]);
+    f_3 = [];
+    t_3 = [];
+    
+    for ind = 1:6
+        [S_3(:,:,:,ind),t_3,f_3]=mtspecgramc((squeeze(att_3_V(:,ind,:)))',movingwin,params);
+    end %for 1:6
+    t_3=t_3-1;
+    S_3=S_3./repmat(mean(S_3(t_3<0,:,:,:),1),[length(t_3) 1 1 1]); S_3Log=log(S_3);
+    figure('Name',[allversions{nversion} '  Vertical att_3']),plot_matrix(mean(mean(S_3Log(:,:,:,:),3),4), t_3, f_3,1); caxis([-1 1]);
+    
+    diffV = log(abs(S_1 - S_3));
+    figure('Name',[allversions{nversion} '  Vertical Att dif']),plot_matrix(mean(mean(diffV(:,:,:,:),3),4), t_3, f_3,1); caxis([-1 1]);
+    
+if (0)
+    Need to change the format into the above format taking log and making baseline corrections 
+
+    
+    
+%     figure('Name',[allversions{nversion} '  Horizontal att_3']),plot_matrix(mean(S_3,3), t_3, (mean(f_3,2))',1, mean(Serr_3,4));
     
     %---------------------Vertical -------------------
     S_1 = [];
@@ -155,7 +196,7 @@ figure('Name',[allversions{nversion} '  All Elct']), plot_matrix(mean(mean(S_1re
     figure('Name',[allversions{nversion} '  Vertical att_3']),plot_matrix(mean(S_3,3), t_3, (mean(f_3,2))',1, mean(Serr_3,4));
     
     
-    if (0)
+    
         
         
         S_1rel=S_1./repmat(mean(S_1(t_1<1,:,:),1),[length(t_1) 1 1]); S_1rel=log(S_1rel);

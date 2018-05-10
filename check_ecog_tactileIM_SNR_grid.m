@@ -27,7 +27,7 @@ end %useCh_1_60
 
 if(sd)
     rootFile    = '/Users/sdan0007/Documents/MATLAB/';
-    filePath    = [rootFile 'Ecog/'];
+    filePath    = [rootFile 'Ecog_Local/'];
     preDataPath = [filePath 'Data/data_IM/'];  %prefix of data file
     chronuxPath = [rootFile 'Add-Ons/Toolboxes/chronux_2_12'];
     % Thomas you probably added this path somewhere else
@@ -38,15 +38,16 @@ else
     filePath    = [rootFile 'EEGgit/LSCPtools/'];
     preDataPath = '/media/tLab_BackUp1/Monash/ECogG_somatosens/data_IM/';
     chronuxPath = [rootFile 'Work/local/toolbox/chronux_2_12/'];
+end %if sd
+
     ttestcolortable;
     load modified_ttestcolortable.mat
-end %if sd
 
 addpath(genpath(filePath));
 allversions={'1a','1arev','1b','2a','2b'};
 
 %% Looping on the different versions of the experiment
-for nversion=4:5
+for nversion=1:length(allversions) %was 4:5
     %     S1channels= (startElct:endElct); %[11 21]; % channels given the strongest frequency-tag responses 1:60
     S1channels = [11 12 13 14 15 16 21 22 23 24 25 26 37 38 39 40 47 48 49 50 59 60];
     
@@ -278,54 +279,154 @@ for nversion=4:5
     fondFreq=[LeftF0 RightF0];
     pow_tag=[];
     pow_tag2=[];
+    freqArr = nan(1,length(fondFreq));
     for nfreq=1:length(fondFreq)
-        [~,findfreq]=findclosest(faxis,fondFreq(nfreq));
+        [theFreq,findfreq]=findclosest(faxis,fondFreq(nfreq)); %making sure we did find the right freq and not somehing very far way
+        freqArr(nfreq) = theFreq;
         pow_tag(:,:,nfreq)=(snr_bych(:,:,findfreq));%-1/2*(log(pow_bych(:,:,findfreq-1)) + log(pow_bych(:,:,findfreq+1)));
         pow_tag2(:,nfreq)=(mean(snr_bych(:,:,findfreq),2));%-1/2*(log(mean(pow_bych(:,:,findfreq-1),2)) + log(mean(pow_bych(:,:,findfreq+1),2)));
     end
+    
+    ipsiContraStr = {'Freq Tag Contra ', 'Freq Tag Ipsi ' };
+    
+    freqInd = 1;
+    for k = 1:length(freqArr)/2
+        figure;
+        subplot(1,3,3);
+        [h, pV, ~, stats]=ttest(squeeze(pow_tag(:,:,k*2 -1:k*2)),0,'dim',2);
+        [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+        title([ipsiContraStr{(k)} num2str(freqArr(k*2 -1)) ' and ' num2str(freqArr(k*2)) ' mean']);
+        format_fig;
+        colormap(cmap);
+        for ind = 1:length(freqArr)/2
+            set(gcf,'position',[-442        1399         362         458],'Name',sprintf('%s - %s %s %s',version,ipsiContraStr{(k)},num2str(freqArr(k*2-1)), num2str(freqArr(k*2))))
+            [h, pV, ~, stats]=ttest(squeeze(pow_tag(:,:,freqInd)),0,'dim',2);
+            subplot(1,3,ind);
+            [p, FV] = draw_biprref(stats.tstat, reref_mat, [10 6], [-8 8]);
+            title([ipsiContraStr{(k)} num2str(freqArr(freqInd))]);
+            format_fig;
+            colormap(cmap)
+            freqInd = freqInd +1;
+        end %for  ind = 1:legnth(freqArr)/2
+    end %for  k = 1:legnth(freqArr)/2
+    
+%   ====================IM Analysis ======================================
+    %Make a permutaion of all possibile IM options
+% % 
+if (0)
+    place = 1;
+    fondFreqIm = nan (1,300);
+    ipsiContrNumRel = zeros(1,300);
+    ipsi_ipsi = 1;
+    ipsi_lateral = 2;
+    lateral_lateral = 3;
+    ipsiContaraRelationStr = {'ipsi_ipsi', 'ipsi_lateral', 'lateral_lateral'}; 
+    for mult1 = 1:5
+        for mult2 = 1:5
+            for ind=1:length(fondFreq)
+                %define the relaion ipsi lateal  
+                for k=ind+1:length(fondFreq)      
+                    if( k < 3 & ind < 3)
+                        resRel = ipsi_ipsi;
+                    elseif (k > 2 & ind < 3 | ind > 2 & k < 3)
+                        resRel = ipsi_lateral;
+                    else resRel = lateral_lateral;
+                    end %if  k < 3 & ind < 3) for relation
+                    ipsiContrNumRel(place) = resRel;
+                    fondFreqIm(place) = abs(mult1*fondFreq(ind) - fondFreq(k)*mult2);
+                    place = place + 1;
+                    ipsiContrNumRel(place) = resRel;
+                    fondFreqIm(place) = mult1*fondFreq(ind) + fondFreq(k)*mult2;                    
+                    place = place + 1;
+                end
+            end
+        end
+    end 
+    
+% % %     [C,IA,IC] = unique(A) also returns index vectors IA and IC such that
+% % %     C = A(IA) and A = C(IC) (or A(:) = C(IC), if A is a matrix or array).
+
+    lineNoise = [50,100,150];
+    for freq = lineNoise
+        fLine = find(freq == fondFreqIm);
+        fondFreqIm(fLine) = [];
+    end
+    
+    [fondFreqIm, IA, IC] = unique(fondFreqIm, 'stable'); %Avoid repitions
+    ipsiContrNumRel = ipsiContrNumRel(IA);  %delete repition from array
+% %     
     % extract IM
-    fondFreq=[abs(LeftF0(2)-LeftF0(1)) abs(RightF0(2)-RightF0(1))];
+    maxDiffValue = 1; %allow less than 1Hz differences between the Im freq and the found freq
+%     fondFreq=[abs(LeftF0(2)-LeftF0(1)) abs(RightF0(2)-RightF0(1))]; 
+    freqArrIm = nan(1,length(fondFreqIm)); %remember the closest number found
     pow_IM=[];
     pow_IM2=[];
-    for nfreq=1:length(fondFreq)
-        [~,findfreq]=findclosest(faxis,fondFreq(nfreq));
+    ignoreNum = 0;
+    for nfreq=1:length(fondFreqIm)
+        [theImFreq,findfreq]=findclosest(faxis,fondFreqIm(nfreq));
+        if(abs(theImFreq - fondFreqIm(nfreq) >= maxDiffValue))
+            fprintf('ignoring freq found %d freq search %d\n', theImFreq, fondFreqIm(nfreq));
+            ignoreNum = ignoreNum + 1; %if no one pays attention to the printing this will count the num of ingnores
+            continue;
+        end %if abs
+        freqArrIm(nfreq) = theImFreq;
         pow_IM(:,:,nfreq)=(snr_bych(:,:,findfreq));%-1/2*(log(pow_bych(:,:,findfreq-1)) + log(pow_bych(:,:,findfreq+1)));
         pow_IM2(:,nfreq)=(mean(snr_bych(:,:,findfreq),2));%-1/2*(log(mean(pow_bych(:,:,findfreq-1),2)) + log(mean(pow_bych(:,:,findfreq+1),2)));
     end
+
+    ipsiContraStrIm = {'IM Contra ', 'IM Ipsi ' };
+    maxNumK = 3;
+    [h, pV, ~, stats]=ttest(pow_IM,0,'dim',2);
+    tempStat = stats;
+    [Y I] = maxk(tempStat.tstat,maxNumK, 3);
+    [O P] = max(Y);
+    freqArrIm(I(P(1)));
     
-    
+    for k = 1:3:length(freqArrIm)
+        figure;
+        for ind = 1:3
+        subplot(1,3,ind); 
+        [h, pV, ~, stats]=ttest(squeeze(pow_tag(:,:,1:2)),0,'dim',2);
+        [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+        title([ipsiContraStr{(ind)} num2str(freqArr(k*2 -1)) ' and ' num2str(freqArr(k*2)) ' mean']);
+        format_fig;
+        colormap(cmap);
+        for ind = 1:length(freqArr)/2
+            set(gcf,'position',[-442        1399         362         458],'Name',sprintf('%s - %s %s %s',version,ipsiContraStr{(k)},num2str(freqArr(k*2-1)), num2str(freqArr(k*2))))
+            [h, pV, ~, stats]=ttest(squeeze(pow_tag(:,:,ind)),0,'dim',2);
+            subplot(1,3,ind);
+            [p, FV] = draw_biprref(stats.tstat, reref_mat, [10 6], [-8 8]);
+            title([ipsiContraStr{(k)} num2str(freqArr(ind*k))]);
+            format_fig;
+            colormap(cmap)
+        end %for  ind = 1:legnth(freqArr)/2
+    end %for  k = 1:legnth(freqArr)/2
     
     figure;
-    set(gcf,'position',[-442        1399         362         458],'Name',sprintf('%s - %s',version,'Power Contra'))
-    [h, pV, ~, stats]=ttest(squeeze(pow_tag(:,:,1:2)),0,'dim',2);
-    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
-    title('Freq Tag Contra')
-    format_fig;
-    colormap(cmap)
-    
-    figure;
-    set(gcf,'position',[-442   867   362   458],'Name',sprintf('%s - %s',version,'Power Contra'))
+    set(gcf,'position',[-442   867   362   458],'Name',sprintf('%s - %s',version,'Im Contra'))
     [h, pV, ~, stats]=ttest(squeeze(pow_IM(:,:,1)),0,'dim',2);
     [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
     title('IM Tag Contra')
     format_fig;
     colormap(cmap)
     
-    figure;
-    set(gcf,'position',[ -79        1399         362         458],'Name',sprintf('%s - %s',version,'Power Contra'))
-    [h, pV, ~, stats]=ttest(squeeze(pow_tag(:,:,3:4)),0,'dim',2);
-    [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
-    title('Freq Tag Ipsi')
-    format_fig;
-    colormap(cmap)
+% % %     figure;
+% % %     set(gcf,'position',[ -79        1399         362         458],'Name',sprintf('%s - %s',version,'Freq Ipsi'))
+% % %     [h, pV, ~, stats]=ttest(squeeze(pow_tag(:,:,3:4)),0,'dim',2);
+% % %     [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+% % %     title('Freq Tag Ipsi')
+% % %     format_fig;
+% % %     colormap(cmap)
     
     figure;
-    set(gcf,'position',[-79   867   362   458],'Name',sprintf('%s - %s',version,'Power Contra'))
+    set(gcf,'position',[-79   867   362   458],'Name',sprintf('%s - %s',version,'Im Ipsi'))
     [h, pV, ~, stats]=ttest(squeeze(pow_IM(:,:,2)),0,'dim',2);
     [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
     title('IM Tag Ipsi')
     format_fig;
     colormap(cmap)
+    
+    
     
     if strcmp(version(1),'2')
         % extract IM
@@ -338,7 +439,7 @@ for nversion=4:5
             pow_IM4(:,nfreq)=(mean(snr_bych(:,:,findfreq),2));%-1/2*(log(mean(pow_bych(:,:,findfreq-1),2)) + log(mean(pow_bych(:,:,findfreq+1),2)));
         end
         figure;
-        set(gcf,'position',[-442   867   362   458],'Name',sprintf('%s - %s',version,'Power Contra'))
+        set(gcf,'position',[-442   867   362   458],'Name',sprintf('%s - %s',version,'IM  Hands'))
         [h, pV, ~, stats]=ttest(squeeze(pow_IM3(:,:,1)),0,'dim',2);
         [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
         title('IM Tag Hands')
@@ -346,7 +447,7 @@ for nversion=4:5
         colormap(cmap)
         
         figure;
-        set(gcf,'position',[-79   867   362   458],'Name',sprintf('%s - %s',version,'Power Contra'))
+        set(gcf,'position',[-79   867   362   458],'Name',sprintf('%s - %s',version,'IM Feets'))
         [h, pV, ~, stats]=ttest(squeeze(pow_IM3(:,:,2)),0,'dim',2);
         [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
         title('IM Tag Feet')
@@ -354,4 +455,7 @@ for nversion=4:5
         colormap(cmap)
         
     end
-end
+    end
+
+end %if
+end %for

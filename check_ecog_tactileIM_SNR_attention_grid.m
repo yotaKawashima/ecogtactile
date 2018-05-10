@@ -38,9 +38,10 @@ else
     filePath    = [rootFile 'EEGgit/LSCPtools/'];
     preDataPath = '/media/tLab_BackUp1/Monash/ECogG_somatosens/data_IM/';
     chronuxPath = [rootFile 'Work/local/toolbox/chronux_2_12/'];
+end %if sd
+
     ttestcolortable;
     load modified_ttestcolortable.mat
-end %if sd
 
 addpath(genpath(filePath));
 allversions={'1a','1arev','1b','2a','2b'};

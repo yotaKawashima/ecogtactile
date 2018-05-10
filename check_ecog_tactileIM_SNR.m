@@ -27,7 +27,7 @@ end %useCh_1_60
 
 if(sd)
     rootFile    = '/Users/sdan0007/Documents/MATLAB/';
-    filePath    = [rootFile 'Ecog/'];
+    filePath    = [rootFile 'Ecog_Local/'];
     preDataPath = [filePath 'Data/data_IM/'];  %prefix of data file
     chronuxPath = [rootFile 'Add-Ons/Toolboxes/chronux_2_12'];
     % Thomas you probably added this path somewhere else
@@ -38,9 +38,10 @@ else
     filePath    = [rootFile 'EEGgit/LSCPtools/'];
     preDataPath = '/media/tLab_BackUp1/Monash/ECogG_somatosens/data_IM/';
     chronuxPath = [rootFile 'Work/local/toolbox/chronux_2_12/'];
+end %if sd
+
     ttestcolortable;
     load modified_ttestcolortable.mat
-end %if sd
 
 addpath(genpath(filePath));
 allversions={'1a','1arev','1b','2a','2b'};
@@ -273,12 +274,6 @@ xlim([2 45])
     xlabel('Frequency (Hz)')
     
     
-    %%
-    temp=squeeze(mean(pow_tag(:,:,1),2));
-    temp=[zeros(1,sum(reref_mat(:,3)==0)) 1:sum(reref_mat(:,3)==1)]';
-    [p, FV] = draw_biprref(temp, reref_mat, [10 6], [1 60]);
-    
-    %%
     % extract fundamentals
     fondFreq=[LeftF0 RightF0];
     pow_tag=[];
@@ -297,6 +292,14 @@ xlim([2 45])
         pow_IM(:,:,nfreq)=(snr_bych(:,:,findfreq));%-1/2*(log(pow_bych(:,:,findfreq-1)) + log(pow_bych(:,:,findfreq+1)));
         pow_IM2(:,nfreq)=(mean(snr_bych(:,:,findfreq),2));%-1/2*(log(mean(pow_bych(:,:,findfreq-1),2)) + log(mean(pow_bych(:,:,findfreq+1),2)));
     end
+
+    
+        %%
+    temp=squeeze(mean(pow_tag(:,:,1),2));
+    temp=[zeros(1,sum(reref_mat(:,3)==0)) 1:sum(reref_mat(:,3)==1)]';
+    [p, FV] = draw_biprref(temp, reref_mat, [10 6], [1 60]);
+    
+    %%
     
     % plot grids
     %     posX=repmat(1:elecC,1,6);

@@ -184,18 +184,53 @@ for nversion=1:length(allversions) %was 4:5
     snr_bych=[];
     powgamma_bych=[];
     gammasnr_bych=[];
+    pow_bych7 = cell(11);
+    snr_bych7 = cell(11);
     kernel=[-.25 -.25 0 0 1 0 0 -.25 -.25];
-    for nch=1:size(erp,1)
-        for ntr=1:size(erp,2)
-            [faxis, pow_bych(nch,ntr,:)]=get_PowerSpec_new(squeeze(erp(nch,ntr,times>=0 & times<10)),1/SR,sum(times>=0 & times<10)/SR,0,0);
-            snr_bych(nch,ntr,:)= conv(squeeze(log(pow_bych(nch,ntr,:))), kernel, 'same');
+    %%
+    logSNR = [];
+    faxis = [];%cell(11);
+    logpow = [];
+    logSNRAll=[];
+    faxisAll =[];
+    logpowAll = [];
+    snrparam=[];
+    snrparam.method='fft';
+    snrparam.mindist=0.9;
+
+    erp2=permute(erp,[1 3 2]);
+    totalTime = (meanSec -1);
+    secInd = 1;
+    secArr = (totalTime/3:totalTime/3:totalTime);
+    for sec=totalTime/3:totalTime/3:totalTime
+%         for nch=1:size(erp2,1)
+%                 for ntr=1:size(erp2,3)
+%     for nch=1:size(erp,1)
+%         for ntr=1:size(erp,2)
+%             [faxis, pow_bych(nch,ntr,:,sec)]=get_PowerSpec_new(squeeze(erp(nch,ntr,times>=sec -1 & times<sec)),1/SR,sum(times>=sec-1 & times<sec)/SR,0,0);
+%             [faxis7{sec}, pow_bych7{sec}(nch,ntr,:,sec)]=get_PowerSpec_new(squeeze(erp(nch,ntr,times>=0 & times<sec)),1/SR,sum(times>=0 & times<sec)/SR,0,0);
+%             snr_bych(nch,ntr,:,sec)= conv(squeeze(log(pow_bych(nch,ntr,:,sec))), kernel, 'same');
+%             snr_bych7{sec}(nch,ntr,:,sec)= conv(squeeze(log(pow_bych7{sec}(nch,ntr,:,sec))), kernel, 'same');
+%             [faxis, powgamma_bych(nch,ntr,:)]=get_PowerSpec_new(squeeze(erpbp(nch,ntr,times>=0 & times<10)),1/SR,sum(times>=0 & times<10)/SR,0,0);
+%             gammasnr_bych(nch,ntr,:)= conv(squeeze(log(powgamma_bych(nch,ntr,:))), kernel, 'same');
             
-            [faxis, powgamma_bych(nch,ntr,:)]=get_PowerSpec_new(squeeze(erpbp(nch,ntr,times>=0 & times<10)),1/SR,sum(times>=0 & times<10)/SR,0,0);
-            gammasnr_bych(nch,ntr,:)= conv(squeeze(log(powgamma_bych(nch,ntr,:))), kernel, 'same');
-            
-        end
-    end
+             [logSNR(:,:,:,secInd), faxis(:,secInd), logpow(:,:,:,secInd)]=get_logSNR(erp2(:,times>=(sec-totalTime/3) & times<(sec),:),SR,snrparam); 
+%              snr_bych7{secInd} = get_logSNR(erp2(:,times>=(sec-totalTime/3) & times<(sec),:),SR,snrparam); 
+             secInd = secInd +1;
+%         end
+%     end
+    end %for sec 1:11
     
+    [logSNRAll, faxisAll, logpowAll]=get_logSNR(erp2(:,times>=0 & times<totalTime,:),SR,snrparam); 
+%     Debug func
+%  figure, plot(faxis(:,1),squeeze(mean(mean(logSNR(:,:,1,1),4),1))) plot
+% % [theFreq,findfreq]=findclosest(faxis9,fondFreq(2));
+% pow_tag9=(logSNR9(:,111,:));
+%  [h, pV, ~, stats]=ttest(squeeze(pow_tag9(:,1,:)),0,'dim',2);
+    %%
+    
+    
+   if(0) 
     erp2=permute(erp,[1 3 2]);
     logSNR_param=[];
     logSNR_param.method='fft';
@@ -272,43 +307,70 @@ for nversion=1:length(allversions) %was 4:5
     ylim([-2 5])
     ylabel('SNR')
     xlabel('Frequency (Hz)')
-    
+end %if 0
     
     %%
     % extract fundamentals
     fondFreq=[LeftF0 RightF0];
     pow_tag=[];
     pow_tag2=[];
+    pow_tagA = [];
+    pow_tag7 = cell(11);
     freqArr = nan(1,length(fondFreq));
+   for sec=1:length(secArr)
     for nfreq=1:length(fondFreq)
-        [theFreq,findfreq]=findclosest(faxis,fondFreq(nfreq)); %making sure we did find the right freq and not somehing very far way
-        freqArr(nfreq) = theFreq;
-        pow_tag(:,:,nfreq)=(snr_bych(:,:,findfreq));%-1/2*(log(pow_bych(:,:,findfreq-1)) + log(pow_bych(:,:,findfreq+1)));
-        pow_tag2(:,nfreq)=(mean(snr_bych(:,:,findfreq),2));%-1/2*(log(mean(pow_bych(:,:,findfreq-1),2)) + log(mean(pow_bych(:,:,findfreq+1),2)));
+        [theFreq,findfreq]=findclosest(faxis(:,sec),fondFreq(nfreq)); %making sure we did find the right freq and not somehing very far way
+        freqArr(nfreq) = theFreq;      
+%         pow_tag(:,:,nfreq,sec)=(snr_bych(:,:,findfreq,sec));%-1/2*(log(pow_bych(:,:,findfreq-1)) + log(pow_bych(:,:,findfreq+1)));
+%         pow_tag7{sec}(:,:,nfreq,sec)=(snr_bych7{sec}(:,:,findfreq,sec));%-1/2*(log(pow_bych(:,:,findfreq-1)) + log(pow_bych(:,:,findfreq+1)));
+%         pow_tag2(:,nfreq)=(mean(snr_bych(:,:,findfreq),2));%-1/2*(log(mean(pow_bych(:,:,findfreq-1),2)) + log(mean(pow_bych(:,:,findfreq+1),2)));
+          pow_tag(:,nfreq,:,sec)=(logSNR(:,findfreq,:,sec));%-1/2*(log(pow_bych(:,:,findfreq-1)) + log(pow_bych(:,:,findfreq+1)));
     end
+    end %for sec 
     
-    ipsiContraStr = {'Freq Tag Contra ', 'Freq Tag Ipsi ' };
+    freqArrA = nan(1,length(fondFreq));
+    for nfreq=1:length(fondFreq)
+    [theFreqA,findfreqA]=findclosest(faxisAll,fondFreq(nfreq)); %making sure we did find the right freq and not somehing very far way
+    pow_tagA(:,nfreq,:) = (logSNRAll(:,findfreqA,:));
+    freqArrA(nfreq) = theFreqA;   
+    end %for nfreq=1:length(fondFreq) 
+   
+    ipsiContraStr = {'Freq Tag Contra ', 'Freq Tag Contra ', 'Freq Tag Ipsi ', 'Freq Tag Ipsi ' };
     
+  
     freqInd = 1;
-    for k = 1:length(freqArr)/2
+        for ind = 1:length(freqArr)
         figure;
-        subplot(1,3,3);
-        [h, pV, ~, stats]=ttest(squeeze(pow_tag(:,:,k*2 -1:k*2)),0,'dim',2);
+        subplot(2,2,4);
+        k=ind;
+        [h, pV, ~, stats]=ttest(squeeze(pow_tagA(:,freqInd,:)),0,'dim',2);
         [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
-        title([ipsiContraStr{(k)} num2str(freqArr(k*2 -1)) ' and ' num2str(freqArr(k*2)) ' mean']);
+        title([ipsiContraStr{(k)} num2str(freqArr(freqInd))  'Sec = 0-10']);
         format_fig;
         colormap(cmap);
-        for ind = 1:length(freqArr)/2
-            set(gcf,'position',[-442        1399         362         458],'Name',sprintf('%s - %s %s %s',version,ipsiContraStr{(k)},num2str(freqArr(k*2-1)), num2str(freqArr(k*2))))
-            [h, pV, ~, stats]=ttest(squeeze(pow_tag(:,:,freqInd)),0,'dim',2);
-            subplot(1,3,ind);
+        
+%         subplot(1,3,3);
+%         [h, pV, ~, stats]=ttest(squeeze(pow_tag(:,:,k*2 -1:k*2,sec)),0,'dim',2);
+%         [p, FV] = draw_biprref(mean(stats.tstat,3), reref_mat, [10 6], [-8 8]);
+%         title([ipsiContraStr{(k)} num2str(freqArr(k*2 -1)) ' and ' num2str(freqArr(k*2)) ' mean']);
+%         format_fig;
+%         colormap(cmap);
+
+            for sec=1:length(secArr)
+            set(gcf,'position',[-442        1399         362         458],'Name',sprintf('%s - %s %s ',version,ipsiContraStr{(k)},num2str(freqArrA(freqInd))))
+            [h, pV, ~, stats]=ttest(squeeze(pow_tag(:,freqInd,:,sec)),0,'dim',2);
+%             [h, pV, ~, stats]=ttest(squeeze(pow_tag7{sec}(:,:,freqInd,sec)),0,'dim',2);
+%              [h, pV, ~, stats]=ttest(squeeze(logSNR(:,:,freqInd,sec)),0,'dim',2);
+            subplot(2,2,sec);
             [p, FV] = draw_biprref(stats.tstat, reref_mat, [10 6], [-8 8]);
-            title([ipsiContraStr{(k)} num2str(freqArr(freqInd))]);
+            title([ipsiContraStr{(k)} num2str(freqArr(freqInd)) ' sec ' num2str(secArr(sec))]);
             format_fig;
             colormap(cmap)
-            freqInd = freqInd +1;
-        end %for  ind = 1:legnth(freqArr)/2
-    end %for  k = 1:legnth(freqArr)/2
+        end %for %for sec
+        freqInd = freqInd +1;
+        end % ind = 1:legnth(freqArr)/2
+%     end %for  k = 1:legnth(freqArr)/2
+    
     
 %   ====================IM Analysis ======================================
     %Make a permutaion of all possibile IM options

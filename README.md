@@ -6,6 +6,7 @@ This originally comes from @andrillon/ecogtactile (https://github.com/andrillon/
 You need the following tool boxes.
 
 -LSCPtools 	(https://github.com/andrillon/ecogtactile/)
+
 -chronux toolbox v2.12 (http://chronux.org/)
 
 # Progress

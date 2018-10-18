@@ -1,5 +1,5 @@
 # ECoG Tactile Asahikawa
-This repo is for analysing ECoG tactile data conducted at Asahikawa.This originally comes from @andrillon/ecogtactile (https://github.com/andrillon/ecogtactile/). 
+This repo is for analysing ECoG tactile data conducted at Asahikawa.This originally comes from [andrillon/ecogtactile](https://github.com/andrillon/ecogtactile/). 
 
 (Forked on 18/10/2018) 
 

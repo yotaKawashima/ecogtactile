@@ -6,7 +6,7 @@ This repo is for analysing ECoG tactile data conducted at Asahikawa.This origina
 # Dependencies
 You need the following tool boxes.
 
-- [LSCPtools](https://github.com/andrillon/)
+- [LSCPtools](https://github.com/andrillon/LSCPtools/)
 
 - [chronux toolbox -v2.12](http://chronux.org/)
 

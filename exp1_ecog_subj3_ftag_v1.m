@@ -21,7 +21,7 @@ close all;
 % % Left Thumb: 8 Hz
 % % Left Index: 11 Hz
 % % Right Thumb: 17 Hz
-% % Right Index: 23 Hz
+% % Right Index: 23 Hzx
 % %
 % % Frequency Mapping - Reverse:
 % % Left Thumb: 23 Hz

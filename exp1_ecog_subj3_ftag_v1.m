@@ -64,7 +64,6 @@ preproc.bipolar=1; % Whether bipolar-referencing or not
 preproc.avref=0; % Whether average-referencing or not
 preproc.notch=1; % Whether notch-filtering or not (Need chronux tool box)
 
-
 %% Looping on the different versions of the experiment
 for nversion=1:2
     if nversion==1

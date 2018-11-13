@@ -1,2 +1,5 @@
 localdef.m
 *.mat
+*.m~
+*.png
+Results/

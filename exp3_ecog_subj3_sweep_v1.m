@@ -43,9 +43,11 @@ close all;
 
 % prepare path
 localdef;
-path_exp3data=[path_data filesep 'S3' filesep 'Exp3'];
+path_exp3data=[path_data filesep 'S3' filesep 'Exp3', filesep];
 addpath(genpath(path_toolbox));
-path_save_dir_exp3 = [path_save_dir, filesep, 'Exp3', filesep];
+path_save_dir_exp3=[path_save_dir, filesep, 'Exp3', filesep, 'mean_power_freq_range400_notch_harmonic', filesep];
+%path_save_dir_exp3=[path_save_dir, filesep, 'Exp3', filesep, 'mean_power', filesep];
+%path_save_dir=[path_save_dir, filesep, 'Exp3' filesep, 'normal', filesep];
 if exist(path_save_dir_exp3)
     addpath(genpath(path_save_dir_exp3));
 else
@@ -61,14 +63,16 @@ load(path_bipolar_reref);
 
 duration_stim = 4; % in seconds
 
+% maximum frequency 
+max_frequency = 400;
+
 % preprocessing steps
 %  Flag about re-referencing and filter
 % make sure you pick one of the two! (bipolar or average)
 preproc=[];
 preproc.bipolar=1; % Whether bipolar-referencing or not
 preproc.avref=0; % Whether average-referencing or not
-preproc.notch=0; % Whether notch-filtering or not (Need chronux tool box)
-
+preproc.notch=0; % Whether notch-filtering or not (Need chronux tool box)0
 %% Create file name for each condition
 % Freqyecny sweep type
 % A -> Ascending
@@ -113,6 +117,10 @@ end % sweep_id
 [ascending_frequency, descending_frequency] = make_frequency_array();
 
 %% Looping on the different versions of the experiment
+%   
+%   Plot data according to experiments
+%
+
 %{
 for nversion=1:length(file_name_prefixs)
     % Get condition
@@ -275,7 +283,7 @@ for nversion=1:length(file_name_prefixs)
             %%% Plot spectrogram
             fig_name = strcat(file_name_prefix, ' ', string(bipolar_ch_id), 'ch');
             spectrogram = plot_spectrogram(fig_name, logdata_this_ch(2:idxFmax, :), faxis(2:idxFmax), group_id_for_plot, fundamental_IM_array_for_image, data_type, finger1, finger2, sweep_type);
-            saveas(spectrogram, strcat(path_save_dir_exp3, filesep, 'normal', filesep, fig_file_prefix, file_name_prefix, '_', num2str(bipolar_ch_id) ,'ch.png'));
+            saveas(spectrogram, strcat(path_save_dir_exp3, fig_file_prefix, file_name_prefix, '_', num2str(bipolar_ch_id) ,'ch.png'));
             %saveas(spectrogram, strcat(path_save_dir_exp3, filesep, 'power_plus_one', filesep, fig_file_prefix, file_name_prefix, '_', num2str(bipolar_ch_id) ,'ch.png'));
             close gcf;
             
@@ -291,36 +299,36 @@ for nversion=1:length(file_name_prefixs)
     %%% Fundamental %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Log Power
     grid_logPow = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_fundamental(:,1)),  bipolar_reref, 0, 'Fundamental');
-    saveas(grid_logPow, strcat(path_save_dir_exp3, filesep, 'normal', filesep, 'corr_fundamental_grid_logPower_', file_name_prefix, '.png'));
+    saveas(grid_logPow, strcat(path_save_dir_exp3, 'corr_fundamental_grid_logPower_', file_name_prefix, '.png'));
     %saveas(grid_logPow, strcat(path_save_dir_exp3, filesep, 'power_plus_one', filesep, 'corr_grid_logPower_plus1_', file_name_prefix, '.png'));
     close gcf;
     % Log SNR
     grid_logSNR = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_fundamental(:,2)),  bipolar_reref, 1, 'Fundamental');
-    saveas(grid_logSNR, strcat(path_save_dir_exp3, filesep, 'normal', filesep, 'corr_fundamental_gird_logSNR_', file_name_prefix, '.png'));
+    saveas(grid_logSNR, strcat(path_save_dir_exp3, 'corr_fundamental_gird_logSNR_', file_name_prefix, '.png'));
     %saveas(grid_logSNR, strcat(path_save_dir_exp3, filesep, 'power_plus_one', filesep, 'corr_gird_logSNR_from_plus1_power_', file_name_prefix, '.png'));
     close gcf;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% IM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Log Power
     grid_logPow = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_IM(:,1)),  bipolar_reref, 0, 'IM');
-    saveas(grid_logPow, strcat(path_save_dir_exp3, filesep, 'normal', filesep, 'corr_IM_grid_logPower_', file_name_prefix, '.png'));
+    saveas(grid_logPow, strcat(path_save_dir_exp3, 'corr_IM_grid_logPower_', file_name_prefix, '.png'));
     %saveas(grid_logPow, strcat(path_save_dir_exp3, filesep, 'power_plus_one', filesep, 'corr_grid_logPower_plus1_', file_name_prefix, '.png'));
     close gcf;
     % Log SNR
     grid_logSNR = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_IM(:,2)),  bipolar_reref, 1, 'IM');
-    saveas(grid_logSNR, strcat(path_save_dir_exp3, filesep, 'normal', filesep, 'corr_IM_gird_logSNR_', file_name_prefix, '.png'));
+    saveas(grid_logSNR, strcat(path_save_dir_exp3, 'corr_IM_gird_logSNR_', file_name_prefix, '.png'));
     %saveas(grid_logSNR, strcat(path_save_dir_exp3, filesep, 'power_plus_one', filesep, 'corr_gird_logSNR_from_plus1_power_', file_name_prefix, '.png'));
     close gcf;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Fundamental  +IM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Log Power
     grid_logPow = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_fundamental_IM(:,1)),  bipolar_reref, 0, 'Fundamenta + IMl');
-    saveas(grid_logPow, strcat(path_save_dir_exp3, filesep, 'normal', filesep, 'corr_fundamental_IM_grid_logPower_', file_name_prefix, '.png'));
+    saveas(grid_logPow, strcat(path_save_dir_exp3, 'corr_fundamental_IM_grid_logPower_', file_name_prefix, '.png'));
     %saveas(grid_logPow, strcat(path_save_dir_exp3, filesep, 'power_plus_one', filesep, 'corr_grid_logPower_plus1_', file_name_prefix, '.png'));
     close gcf;
     % Log SNR
     grid_logSNR = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_fundamental_IM(:,2)),  bipolar_reref, 1, 'Fundamental + IM');
-    saveas(grid_logSNR, strcat(path_save_dir_exp3, filesep, 'normal', filesep, 'corr_fundamental_IM_gird_logSNR_', file_name_prefix, '.png'));
+    saveas(grid_logSNR, strcat(path_save_dir_exp3, 'corr_fundamental_IM_gird_logSNR_', file_name_prefix, '.png'));
     %saveas(grid_logSNR, strcat(path_save_dir_exp3, filesep, 'power_plus_one', filesep, 'corr_gird_logSNR_from_plus1_power_', file_name_prefix, '.png'));
     close gcf;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -379,11 +387,12 @@ for nversion=1:length(file_name_prefixs)
 end
 %}
 
-%% Looping on the different sweep, different frequency, and different finger
-%{
-    Take maen of power from two different data which share the same finger, the same
-    frequecy to the finger, and the same sweep type
-%}
+%% Looping on the different sweeps, different frequencies, and different fingers
+%
+%    Take maen of power from two different data which share the same finger, the same
+%    frequecy to the finger, and the same sweep type
+%
+
 fingers = {'Thumb', 'Index', 'Middle'};
 for sweep_id = 1:length(sweep_types)
     % Get sweep type
@@ -402,6 +411,12 @@ for sweep_id = 1:length(sweep_types)
     IM_frequency_array(:,1) = abs(frequency_array(:,1) - frequency_array(:,2));
     IM_frequency_array(:,2) = abs(frequency_array(:,1) + frequency_array(:,2));
     
+    IM2_frequency_array = 2 * IM_frequency_array;
+    
+    IM3_frequency_array = 3 * IM_frequency_array;
+    
+    IM4_frequency_array = 4 * IM_frequency_array;
+    
     for frequency_id = 1:2
         % Get target frequency 
         target_frequency_array = nan(size(frequency_array));
@@ -414,7 +429,7 @@ for sweep_id = 1:length(sweep_types)
             % Get file name prefix for the same finger, the same frequency, and the same sweep type
             [file_name1_prefix, file_name2_prefix] = get_two_file_name_prefix(file_name_prefixs, sweep_id, frequency_id, finger);
             % Get file name 
-            file_name_prefix = strcat('Exp3_', sweep_type, '_', finger,                                     '_f', num2str(frequency_id));
+            file_name_prefix = strcat('Exp3_', sweep_type, '_', finger, '_f', num2str(frequency_id));
             % For data1
             file_name1_temp = join([path_exp3data filesep file_name1_prefix, '*.mat'],'');
             file_name1_info = dir(file_name1_temp);
@@ -491,10 +506,31 @@ for sweep_id = 1:length(sweep_types)
                     params=[];  %params has the following fields: tapers, Fs, fpass, pad
                     params.tapers=[3 4];
                     params.Fs=SR;
+                    
                     f0= 50; % take out the 50Hz noise
                     [dataf,~,~,~]=rmlinesmovingwinc(data,movingwin,tau,params,[],[],f0);
                     %         f0= 100; % 
                     %         [datac,~,~,~]=rmlinesmovingwinc(datac,movingwin,tau,params,[],[],f0);
+                    
+                    % This following part would be problematic. %%%%%%%
+                    %{
+                    f1=100;
+                    [dataf,~,~,~]=rmlinesmovingwinc(dataf,movingwin,tau,params,[],[],f1);
+                    f2=150;
+                    [dataf,~,~,~]=rmlinesmovingwinc(dataf,movingwin,tau,params,[],[],f2);
+                    f3=200;
+                    [dataf,~,~,~]=rmlinesmovingwinc(dataf,movingwin,tau,params,[],[],f3);
+                    f4=250;
+                    [dataf,~,~,~]=rmlinesmovingwinc(dataf,movingwin,tau,params,[],[],f4);
+                    f5=300;
+                    [dataf,~,~,~]=rmlinesmovingwinc(dataf,movingwin,tau,params,[],[],f5);
+                    f6=350;
+                    [dataf,~,~,~]=rmlinesmovingwinc(dataf,movingwin,tau,params,[],[],f6);
+                    f7=400;
+                    [dataf,~,~,~]=rmlinesmovingwinc(dataf,movingwin,tau,params,[],[],f7);
+                    %}
+                    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                    
                     dataf=dataf'; % channel*time
                 else
                     dataf=squeeze(refy);
@@ -538,29 +574,74 @@ for sweep_id = 1:length(sweep_types)
             group_id_for_plot = 1:21;
 
             % Get frequency lim for plot 
-            [~,idxFmax] = findclosest(faxis,49);% max frequency = 49
+            [~,idxFmax] = findclosest(faxis,max_frequency);% max frequency = 49
+            
+            % Get index for 50Hz to remove
+            [~, idxF50] = findclosest(faxis, 50);
+            [~, idxF100] = findclosest(faxis, 100);
+            [~, idxF150] = findclosest(faxis, 150);
+            [~, idxF200] = findclosest(faxis, 200);
+            [~, idxF250] = findclosest(faxis, 250);
+            [~, idxF300] = findclosest(faxis, 300);
+            [~, idxF350] = findclosest(faxis, 350);
+            [~, idxF400] = findclosest(faxis, 400);
             
             % Get frequency array for correlation
             target_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, target_frequency_array);
+            target2_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, target_frequency_array*2);
+            target3_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, target_frequency_array*3);
+            target4_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, target_frequency_array*4);
+            target5_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, target_frequency_array*5);
+            target6_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, target_frequency_array*6);
+            target7_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, target_frequency_array*7);
+            target8_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, target_frequency_array*8);
+            target9_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, target_frequency_array*9);
+            target10_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, target_frequency_array*10);
+       
+        
             fundamental_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, frequency_array);
-            IM_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, IM_frequency_array);
+            fundamental2_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, frequency_array*2);
+            fundamental3_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, frequency_array*3);
+            fundamental4_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, frequency_array*4);
+            fundamental5_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, frequency_array*5);
+            fundamental6_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, frequency_array*6);
+            fundamental7_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, frequency_array*7);
+            fundamental8_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, frequency_array*8);
+            fundamental9_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, frequency_array*9);
+            fundamental10_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, frequency_array*10);
+            
+            IM1_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, IM_frequency_array);
+            IM2_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, IM2_frequency_array);
+            IM3_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, IM3_frequency_array);
+            IM4_frequency_array_for_correlation = get_frequency_array_for_correlation(faxis, IM4_frequency_array);
+            
+            % Add harmonic frequency
+            target_frequency_array_for_correlation = target_frequency_array_for_correlation + target2_frequency_array_for_correlation + target3_frequency_array_for_correlation + target4_frequency_array_for_correlation + target5_frequency_array_for_correlation + target6_frequency_array_for_correlation + target7_frequency_array_for_correlation + target8_frequency_array_for_correlation + target9_frequency_array_for_correlation + target10_frequency_array_for_correlation;
+            fundamental_frequency_array_for_correlation = fundamental_frequency_array_for_correlation + fundamental2_frequency_array_for_correlation + fundamental3_frequency_array_for_correlation + fundamental4_frequency_array_for_correlation + fundamental5_frequency_array_for_correlation + fundamental6_frequency_array_for_correlation + fundamental7_frequency_array_for_correlation + fundamental8_frequency_array_for_correlation + fundamental9_frequency_array_for_correlation + fundamental10_frequency_array_for_correlation;
             
             target_frequency_array_for_correlation = target_frequency_array_for_correlation(2:idxFmax, :);          % This avoids assigning 1 to the element corresponding more than 50Hz
             fundamental_frequency_array_for_correlation = fundamental_frequency_array_for_correlation(2:idxFmax, :); 
-            IM_frequency_array_for_correlation = IM_frequency_array_for_correlation(2:idxFmax, :);
+            IM1_frequency_array_for_correlation = IM1_frequency_array_for_correlation(2:idxFmax, :);
+            IM2_frequency_array_for_correlation = IM2_frequency_array_for_correlation(2:idxFmax, :);
+            IM3_frequency_array_for_correlation = IM3_frequency_array_for_correlation(2:idxFmax, :);
+            IM4_frequency_array_for_correlation = IM4_frequency_array_for_correlation(2:idxFmax, :);
             
-            %fundamental_IM_array_for_correlation = fundamental_frequency_array_for_correlation + IM_frequency_array_for_correlation;
+            all_IM_frequency_array_for_correlation = IM1_frequency_array_for_correlation + IM2_frequency_array_for_correlation + IM3_frequency_array_for_correlation + IM4_frequency_array_for_correlation;
+            fundamental_IM_array_for_correlation = fundamental_frequency_array_for_correlation + all_IM_frequency_array_for_correlation;
             
             % Get frequency arrau for image
             % Background white, fundamental Black, IM 
-            fundamental_IM_array_for_image = get_frequency_array_for_image_for_one_finger(target_frequency_array_for_correlation, fundamental_frequency_array_for_correlation, IM_frequency_array_for_correlation);
-
+            fundamental_IM_array_for_image = get_frequency_array_for_image_for_one_finger(target_frequency_array_for_correlation, fundamental_frequency_array_for_correlation);
+            %fundamental_IM_array_for_image = get_frequency_array_for_image_for_one_finger_4IM(target_frequency_array_for_correlation, fundamental_frequency_array_for_correlation, IM1_frequency_array_for_correlation, IM2_frequency_array_for_correlation, IM3_frequency_array_for_correlation, IM4_frequency_array_for_correlation);
             % Initialisation 
             correlation_array_target_fundamental = zeros(size(logSNR, 1), 2); % dim = number of bipolar channel id 
-            %correlation_array_IM = zeros(size(logSNR, 1), 2);
-            %correlation_array_fundamental_IM = zeros(size(logSNR, 1), 2);
+            correlation_array_IM1 = zeros(size(logSNR, 1), 2);
+            correlation_array_IM2 = zeros(size(logSNR, 1), 2);
+            correlation_array_IM3 = zeros(size(logSNR, 1), 2);
+            correlation_array_IM4 = zeros(size(logSNR, 1), 2);
+            correlation_array_IM1234 = zeros(size(logSNR, 1), 2);
+            correlation_array_fundamental_IM = zeros(size(logSNR, 1), 2);
             
-
             for bipolar_ch_id = 1:size(logSNR,1)
                 for data_type=0:1
 
@@ -574,50 +655,109 @@ for sweep_id = 1:length(sweep_types)
                         %fig_file_prefix = 'spectrogram_logSNR_from_plus1_power_';
                     end
                     
+                    %%% Remove value at 50Hz+-1Hz multiples  (faxis - 1 shift ~0.25Hz)
+                    logdata_this_ch(idxF50-2:idxF50+2, :) = nan;
+                    logdata_this_ch(idxF100-2:idxF100+2, :) = nan;
+                    logdata_this_ch(idxF150-2:idxF150+2, :) = nan;
+                    logdata_this_ch(idxF200-2:idxF200+2, :) = nan;
+                    logdata_this_ch(idxF250-2:idxF250+2, :) = nan;
+                    logdata_this_ch(idxF300-2:idxF300+2, :) = nan;
+                    logdata_this_ch(idxF350-2:idxF350+2, :) = nan;
+                    logdata_this_ch(idxF400-2:idxF400+2, :) = nan;
+                    
                     %%% Plot spectrogram
                     fig_name = strcat(file_name_prefix, '_', string(bipolar_ch_id), 'ch');
-                    %spectrogram = plot_spectrogram_for_one_finger(fig_name, logdata_this_ch(2:idxFmax, :), faxis(2:idxFmax), group_id_for_plot, fundamental_IM_array_for_image, data_type, finger, sweep_type, frequency_id);
-                    %saveas(spectrogram, strcat(path_save_dir_exp3, filesep, 'mean_power', filesep, fig_file_prefix, file_name_prefix, '_', num2str(bipolar_ch_id) ,'ch.png'));
+                    spectrogram = plot_spectrogram_for_one_finger(fig_name, logdata_this_ch(2:idxFmax, :), faxis(2:idxFmax), group_id_for_plot, fundamental_IM_array_for_image, data_type, finger, sweep_type, frequency_id);
+                    saveas(spectrogram, strcat(path_save_dir_exp3, fig_file_prefix, file_name_prefix, '_', num2str(bipolar_ch_id) ,'ch.png'));
                     close gcf;
 
                     %%% Compute correlation between spectrogram and frequency_array_for_plot
                     correlation_array_target_fundamental(bipolar_ch_id, data_type+1) = corr2(logdata_this_ch(2:idxFmax, :), target_frequency_array_for_correlation); 
-                    %correlation_array_IM(bipolar_ch_id, data_type+1) = corr2(logdata_this_ch(2:idxFmax, :), IM_frequency_array_for_colleration);
-                    %correlation_array_fundamental_IM(bipolar_ch_id, data_type+1) = corr2(logdata_this_ch(2:idxFmax, :), fundamental_IM_array_for_correlation);
-
+                    correlation_array_IM1(bipolar_ch_id, data_type+1) = corr2(logdata_this_ch(2:idxFmax, :), IM1_frequency_array_for_correlation);
+                    correlation_array_IM2(bipolar_ch_id, data_type+1) = corr2(logdata_this_ch(2:idxFmax, :), IM2_frequency_array_for_correlation);
+                    correlation_array_IM3(bipolar_ch_id, data_type+1) = corr2(logdata_this_ch(2:idxFmax, :), IM3_frequency_array_for_correlation);
+                    correlation_array_IM4(bipolar_ch_id, data_type+1) = corr2(logdata_this_ch(2:idxFmax, :), IM4_frequency_array_for_correlation);
+                    correlation_array_IM1234(bipolar_ch_id, data_type+1) = corr2(logdata_this_ch(2:idxFmax, :), all_IM_frequency_array_for_correlation);
+                    correlation_array_fundamental_IM(bipolar_ch_id, data_type+1) = corr2(logdata_this_ch(2:idxFmax, :), fundamental_IM_array_for_correlation);
+                    
                 end
             end
-
+            %{
             % Plot correlation for bipolar channel map
             %%% Fundamental %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Log Power
             grid_logPow = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_target_fundamental(:,1)),  bipolar_reref, 0, 'Fundamental');
-            saveas(grid_logPow, strcat(path_save_dir_exp3, filesep, 'mean_power', filesep, 'corr_fundamental_grid_logPower_', file_name_prefix, '_YV.png'));
+            saveas(grid_logPow, strcat(path_save_dir_exp3, 'corr_fundamental_grid_logPower_', file_name_prefix, '.png'));
+            %grid_logPow = plot_grid_correlation_YV(file_name_prefix, squeeze(correlation_array_target_fundamental(:,1)),  bipolar_reref, 0, 'Fundamental');
+            %saveas(grid_logPow, strcat(path_save_dir_exp3, 'corr_fundamental_grid_logPower_', file_name_prefix, '_YV.png'));
             close gcf;
+            
             % Log SNR
             grid_logSNR = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_target_fundamental(:,2)),  bipolar_reref, 1, 'Fundamental');
-            saveas(grid_logSNR, strcat(path_save_dir_exp3, filesep, 'mean_power', filesep, 'corr_fundamental_gird_logSNR_', file_name_prefix, '_YV.png'));
+            saveas(grid_logSNR, strcat(path_save_dir_exp3, 'corr_fundamental_gird_logSNR_', file_name_prefix, '.png'));
+            %grid_logSNR = plot_grid_correlation_YV(file_name_prefix, squeeze(correlation_array_target_fundamental(:,2)),  bipolar_reref, 1, 'Fundamental');
+            %saveas(grid_logSNR, strcat(path_save_dir_exp3, 'corr_fundamental_gird_logSNR_', file_name_prefix, '_YV.png'));
             close gcf;
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %{
-            %%% IM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            
+            %%% IM1 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Log Power
-            grid_logPow = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_IM(:,1)),  bipolar_reref, 0, 'IM');
-            saveas(grid_logPow, strcat(path_save_dir_exp3, filesep, 'mean_power', filesep, 'corr_IM_grid_logPower_', file_name_prefix, '.png'));
+            grid_logPow = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_IM1(:,1)),  bipolar_reref, 0, 'IM');
+            saveas(grid_logPow, strcat(path_save_dir_exp3, 'corr_IM1_grid_logPower_', file_name_prefix, '.png'));
             close gcf;
             % Log SNR
-            grid_logSNR = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_IM(:,2)),  bipolar_reref, 1, 'IM');
-            saveas(grid_logSNR, strcat(path_save_dir_exp3, filesep, 'mean_power', filesep, 'corr_IM_gird_logSNR_', file_name_prefix, '.png'));
+            grid_logSNR = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_IM1(:,2)),  bipolar_reref, 1, 'IM');
+            saveas(grid_logSNR, strcat(path_save_dir_exp3, 'corr_IM1_gird_logSNR_', file_name_prefix, '.png'));
+            close gcf;
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %%% IM2 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % Log Power
+            grid_logPow = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_IM2(:,1)),  bipolar_reref, 0, 'IM');
+            saveas(grid_logPow, strcat(path_save_dir_exp3, 'corr_IM2_grid_logPower_', file_name_prefix, '.png'));
+            close gcf;
+            % Log SNR
+            grid_logSNR = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_IM2(:,2)),  bipolar_reref, 1, 'IM');
+            saveas(grid_logSNR, strcat(path_save_dir_exp3, 'corr_IM2_gird_logSNR_', file_name_prefix, '.png'));
+            close gcf;
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %%% IM3 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % Log Power
+            grid_logPow = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_IM3(:,1)),  bipolar_reref, 0, 'IM');
+            saveas(grid_logPow, strcat(path_save_dir_exp3, 'corr_IM3_grid_logPower_', file_name_prefix, '.png'));
+            close gcf;
+            % Log SNR
+            grid_logSNR = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_IM3(:,2)),  bipolar_reref, 1, 'IM');
+            saveas(grid_logSNR, strcat(path_save_dir_exp3, 'corr_IM3_gird_logSNR_', file_name_prefix, '.png'));
+            close gcf;
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %%% IM4 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % Log Power
+            grid_logPow = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_IM4(:,1)),  bipolar_reref, 0, 'IM');
+            saveas(grid_logPow, strcat(path_save_dir_exp3, 'corr_IM4_grid_logPower_', file_name_prefix, '.png'));
+            close gcf;
+            % Log SNR
+            grid_logSNR = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_IM4(:,2)),  bipolar_reref, 1, 'IM');
+            saveas(grid_logSNR, strcat(path_save_dir_exp3, 'corr_IM4_gird_logSNR_', file_name_prefix, '.png'));
+            close gcf;
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %%% IM1234 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % Log Power
+            grid_logPow = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_IM1234(:,1)),  bipolar_reref, 0, 'IM');
+            saveas(grid_logPow, strcat(path_save_dir_exp3, 'corr_IM1234_grid_logPower_', file_name_prefix, '.png'));
+            close gcf;
+            % Log SNR
+            grid_logSNR = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_IM1234(:,2)),  bipolar_reref, 1, 'IM');
+            saveas(grid_logSNR, strcat(path_save_dir_exp3, 'corr_IM1234_gird_logSNR_', file_name_prefix, '.png'));
             close gcf;
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%% Fundamental  +IM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % Log Power
-            grid_logPow = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_fundamental_IM(:,1)),  bipolar_reref, 0, 'Fundamenta + IMl');
-            saveas(grid_logPow, strcat(path_save_dir_exp3, filesep, 'mean_power', filesep, 'corr_fundamental_IM_grid_logPower_', file_name_prefix, '.png'));
+            grid_logPow = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_fundamental_IM(:,1)),  bipolar_reref, 0, 'Fundamental + IM');
+            saveas(grid_logPow, strcat(path_save_dir_exp3, 'corr_fundamental_IM1234_grid_logPower_', file_name_prefix, '.png'));
             close gcf;
             % Log SNR
             grid_logSNR = plot_grid_correlation(file_name_prefix, squeeze(correlation_array_fundamental_IM(:,2)),  bipolar_reref, 1, 'Fundamental + IM');
-            saveas(grid_logSNR, strcat(path_save_dir_exp3, filesep, 'mean_power', filesep, 'corr_fundamental_IM_gird_logSNR_', file_name_prefix, '.png'));
+            saveas(grid_logSNR, strcat(path_save_dir_exp3, 'corr_fundamental_IM1234_gird_logSNR_', file_name_prefix, '.png'));
             close gcf;
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %}
@@ -762,16 +902,69 @@ function fundamental_IM_array_for_image = get_frequency_array_for_image_for_one_
     fundamental_IM_array_for_imageG = ones(size(fundamental_array_for_correlation,1), size(fundamental_array_for_correlation,2));
     fundamental_IM_array_for_imageB = ones(size(fundamental_array_for_correlation,1), size(fundamental_array_for_correlation,2));
     
-    % Set black for fundamental frequency
+    % Set gray for fundamental frequency
+    fundamental_IM_array_for_imageR(logical(fundamental_array_for_correlation)) = 180/256;
+    fundamental_IM_array_for_imageG(logical(fundamental_array_for_correlation)) = 180/256;
+    fundamental_IM_array_for_imageB(logical(fundamental_array_for_correlation)) = 180/256;
+    
+    % Set black for target fundamental frequency
+    fundamental_IM_array_for_imageR(logical(target_array_for_correlation)) = 0;
+    fundamental_IM_array_for_imageG(logical(target_array_for_correlation)) = 0;
+    fundamental_IM_array_for_imageB(logical(target_array_for_correlation)) = 0;
+    
+    % Set pink for IM frequency
+    if nargin > 3
+        fundamental_IM_array_for_imageR(logical(IM_array_for_correlation)) = 240/256;
+        fundamental_IM_array_for_imageG(logical(IM_array_for_correlation)) = 0/256;
+        fundamental_IM_array_for_imageB(logical(IM_array_for_correlation)) = 120/256;
+    end
+    
+    fundamental_IM_array_for_image = cat(3, fundamental_IM_array_for_imageR, fundamental_IM_array_for_imageG, fundamental_IM_array_for_imageB); 
+end
+
+function fundamental_IM_array_for_image = get_frequency_array_for_image_for_one_finger_4IM(target_array_for_correlation, fundamental_array_for_correlation, IM1_array_for_correlation, IM2_array_for_correlation, IM3_array_for_correlation, IM4_array_for_correlation)
+    % Purpose %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Make frequency array for correspondence of group id to frequency
+    % Just for experiment 3 (Sweep experiment)
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Input 
+    %    target_array_for_correlation      : Fundamental frequency array, whose frequency is allocated to the target finger    
+    %    fundamental_array_for_correlation : Fundamental frequency array for correlation 
+    %    IM_array_for_correlation          : IM frequency for correlation
+    % Output 
+    %    fundamental_IM_frequency_array_for_image   : Frequency array for image
+    %    ----------
+    %    dim = (faxis x condition x RGB)
+    %    fundamental-> black, IM-> gray, background-> white
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    % Initialisation
+    fundamental_IM_array_for_imageR = ones(size(fundamental_array_for_correlation,1), size(fundamental_array_for_correlation,2));
+    fundamental_IM_array_for_imageG = ones(size(fundamental_array_for_correlation,1), size(fundamental_array_for_correlation,2));
+    fundamental_IM_array_for_imageB = ones(size(fundamental_array_for_correlation,1), size(fundamental_array_for_correlation,2));
+    
+    % Set gray for fundamental frequency
     fundamental_IM_array_for_imageR(logical(fundamental_array_for_correlation)) = 180/256;
     fundamental_IM_array_for_imageG(logical(fundamental_array_for_correlation)) = 180/256;
     fundamental_IM_array_for_imageB(logical(fundamental_array_for_correlation)) = 180/256;
     
     % Set pink for IM frequency
-    fundamental_IM_array_for_imageR(logical(IM_array_for_correlation)) = 240/256;
-    fundamental_IM_array_for_imageG(logical(IM_array_for_correlation)) = 0/256;
-    fundamental_IM_array_for_imageB(logical(IM_array_for_correlation)) = 120/256;
-
+    fundamental_IM_array_for_imageR(logical(IM1_array_for_correlation)) = 137/256;
+    fundamental_IM_array_for_imageG(logical(IM1_array_for_correlation)) = 15/256;
+    fundamental_IM_array_for_imageB(logical(IM1_array_for_correlation)) = 80/256;
+    
+    fundamental_IM_array_for_imageR(logical(IM2_array_for_correlation)) = 256/256;
+    fundamental_IM_array_for_imageG(logical(IM2_array_for_correlation)) = 24/256;
+    fundamental_IM_array_for_imageB(logical(IM2_array_for_correlation)) = 69/256;
+    
+    fundamental_IM_array_for_imageR(logical(IM3_array_for_correlation)) = 245/256;
+    fundamental_IM_array_for_imageG(logical(IM3_array_for_correlation)) = 144/256;
+    fundamental_IM_array_for_imageB(logical(IM3_array_for_correlation)) = 178/256;
+    
+    fundamental_IM_array_for_imageR(logical(IM4_array_for_correlation)) = 253/256;
+    fundamental_IM_array_for_imageG(logical(IM4_array_for_correlation)) = 229/256;
+    fundamental_IM_array_for_imageB(logical(IM4_array_for_correlation)) = 237/256;
+        
     % Set black for target fundamental frequency
     fundamental_IM_array_for_imageR(logical(target_array_for_correlation)) = 0;
     fundamental_IM_array_for_imageG(logical(target_array_for_correlation)) = 0;
@@ -877,8 +1070,27 @@ function spectrogram = plot_spectrogram(fig_name, logdata_this_ch, faxis, trial,
     figure;
     set(gcf,'Name',fig_name)
     
-    % Plot spectrogram
+    % Plot frequency applied to each finger
     ax1 = subplot(2,1,1);
+    image(trial, faxis, frequency_array_for_image);
+    set(gca,'Ydir','Normal');
+    
+    % Set parameter 
+    xlabel('Trial ID [-]');
+    ylabel('Frequency [Hz]');
+    title_freq_line1 = strcat('Frequency stimulated to', " ", finger1, " ", 'and',  " ", finger2);
+    
+    switch sweep_type
+        case 'A'
+        title_freq_line2 = strcat(finger1, '=8:1:28 [Hz],',  "  ", finger2, '=10:2:50 [Hz]');
+        case 'D'
+        title_freq_line2 = strcat(finger1, '=50:-1:30 [Hz],',  "  ", finger2, '=48:-2:8 [Hz]');
+    end
+    title({title_freq_line1, title_freq_line2});
+    format_fig;
+    
+    % Plot spectrogram
+    ax2 = subplot(2,1,2);
     % Plot
     imagesc(trial, faxis, logdata_this_ch);
     set(gca,'Ydir','Normal');
@@ -906,30 +1118,10 @@ function spectrogram = plot_spectrogram(fig_name, logdata_this_ch, faxis, trial,
     title('Spectrogarm');
     set(gca, 'Position', originalSize);
     format_fig;
-    
-    % Plot frequency applied to each finger
-    ax2 = subplot(2,1,2);
-    image(trial, faxis, frequency_array_for_image);
-    set(gca,'Ydir','Normal');
-    
-    % Set parameter 
-    xlabel('Trial ID [-]');
-    ylabel('Frequency [Hz]');
-    title_freq_line1 = strcat('Frequency stimulated to', " ", finger1, " ", 'and',  " ", finger2);
-    
-    switch sweep_type
-        case 'A'
-        title_freq_line2 = strcat(finger1, '=8:1:28 [Hz],',  "  ", finger2, '=10:2:50 [Hz]');
-        case 'D'
-        title_freq_line2 = strcat(finger1, '=50:-1:30 [Hz],',  "  ", finger2, '=48:-2:8 [Hz]');
-    end
-    title({title_freq_line1, title_freq_line2});
-    format_fig;
-
+   
     % Colormap
-    cmap_1 = flipud(colormap('hot'));
-    colormap(ax1, cmap_1);
-    %colormap(ax2, cmap_2);
+    cmap_2 = flipud(colormap('hot'));
+    colormap(ax2, cmap_2);
     set(gcf, 'Position',[3000, 310, 940, 1000] )
     spectrogram = gcf;
     %pause;
@@ -1042,10 +1234,40 @@ function spectrogram = plot_spectrogram_for_one_finger(fig_name, logdata_this_ch
     figure;
     set(gcf,'Name',fig_name)
     
+    % Plot frequency applied to each finger
+    ax1 = subplot(1,2,1);
+    imagesc(trial, faxis, frequency_array_for_plot);
+    set(gca,'Ydir','Normal');
+    
+    % Set parameter 
+    xlabel('Trial ID [-]');
+    ylabel('Frequency [Hz]');
+    title_freq_line1 = strcat('Frequency stimulated to', " ", finger);
+    
+    switch sweep_type
+        case 'A'
+            switch frequency_id 
+                case 1
+                    title_freq_line2 = '8:1:28 [Hz]';
+                case 2
+                    title_freq_line2 = '10:2:50 [Hz]';
+            end
+        case 'D'
+            switch frequency_id
+                case 1
+                    title_freq_line2 = '50:-1:30 [Hz]';
+                case 2
+                    title_freq_line2 = '48:-2:8 [Hz]';
+            end
+    end
+    
+    title({title_freq_line1, title_freq_line2});
+    format_fig;
+    
     % Plot spectrogram
-    ax1 = subplot(2,1,1);
+    ax2 = subplot(1,2,2);
     % Colormap
-    cmap_1 = flipud(colormap('hot'));
+    cmap_2 = flipud(colormap('hot'));
     % Plot
     imagesc(trial, faxis, logdata_this_ch);
     set(gca,'Ydir','Normal');
@@ -1075,39 +1297,10 @@ function spectrogram = plot_spectrogram_for_one_finger(fig_name, logdata_this_ch
     set(gca, 'Position', originalSize);
     format_fig;
     
-    % Plot frequency applied to each finger
-    ax2 = subplot(2,1,2);
-    imagesc(trial, faxis, frequency_array_for_plot);
-    set(gca,'Ydir','Normal');
-    
-    % Set parameter 
-    xlabel('Trial ID [-]');
-    ylabel('Frequency [Hz]');
-    title_freq_line1 = strcat('Frequency stimulated to', " ", finger);
-    
-    switch sweep_type
-        case 'A'
-            switch frequency_id 
-                case 1
-                    title_freq_line2 = '8:1:28 [Hz]';
-                case 2
-                    title_freq_line2 = '10:2:50 [Hz]';
-            end
-        case 'D'
-            switch frequency_id
-                case 1
-                    title_freq_line2 = '50:-1:30 [Hz]';
-                case 2
-                    title_freq_line2 = '48:-2:8 [Hz]';
-            end
-    end
-    
-    title({title_freq_line1, title_freq_line2});
-    format_fig;
-    
     % Colormap
-    colormap(ax1, cmap_1);
-    set(gcf, 'Position',[3000, 310, 940, 1000] )
+    colormap(ax2, cmap_2);
+    set(gcf, 'Position', get(0, 'Screensize'));
+    %set(gcf, 'Position',[3000, 310, 940, 1000] )
     spectrogram = gcf;
     %pause;
     %close all;
@@ -1115,7 +1308,7 @@ function spectrogram = plot_spectrogram_for_one_finger(fig_name, logdata_this_ch
 end
 
 
-% For experiment 1
+%% For experiment 1
 % Plot 
 function plot_spectrum(fig_name, logSNR, logPow, trials, bipolar_reref, LeftF0, LeftIM, RightF0, RightIM, faxis)
     % Plot spectrum (Thomas ver)

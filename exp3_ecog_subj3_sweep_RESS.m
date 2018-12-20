@@ -347,7 +347,7 @@ for sweep_id = 1:length(sweep_types)
             end
             title(['finger : ', finger, ', sweep type : ', sweep_type]);
             legend(legend_text);
-            
+
             hold off;
             %%%
             
